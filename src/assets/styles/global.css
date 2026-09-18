@@ -281,3 +281,19 @@ span.katex-display {
     border-radius: 999px;
   }
 }
+
+header,
+header *,
+div:has(> header),
+.sticky,
+[class*="sticky"] {
+  position: static !important;
+  top: auto !important;
+}
+
+/* Ẩn triệt để dòng placeholder views và comments */
+.header-meta .views,
+.header-meta .comments,
+[data-waline] {
+  display: none !important;
+}
