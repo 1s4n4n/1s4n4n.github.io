@@ -79,22 +79,20 @@ export const theme: ThemeUserConfig = {
 
 export const integ: IntegrationUserConfig = {
   // [Links]
-  links: {
-    logbook: [],
-    applyTip: [
-      { name: 'Name', val: theme.title },
-      { name: 'Desc', val: theme.description || 'Null' },
-      { name: 'Link', val: 'https://1s4n4n.github.io/' },
-      { name: 'Avatar', val: 'https://github.com/1s4n4n.png' }
-    ],
-    cacheAvatar: false
-  },
   // [Search]
+    waline: {
+    enable: false,
+    server: ''
+  },
   pagefind: true,
   // [Quote]
   quote: {
     server: 'https://dummyjson.com/quotes/random',
     target: `(data) => (data.quote.length > 80 ? \`\${data.quote.slice(0, 80)}...\` : data.quote || 'Error')`
+  },
+  links: {
+    logbook: [],
+    applyTip: []
   },
   // [Typography]
   typography: {
@@ -109,17 +107,8 @@ export const integ: IntegrationUserConfig = {
     options: {
       className: 'zoomable'
     }
-  },
-  // Comment system - Đã tắt triệt để pageview và comment
-  waline: {
-    enable: false,
-    server: '',
-    showMeta: false,
-    additionalConfigs: {
-      pageview: false,
-      comment: false
-    }
   }
+  // Comment system - Đã tắt triệt để pageview và comment
 }
 
 export const terms: CardListData = {
