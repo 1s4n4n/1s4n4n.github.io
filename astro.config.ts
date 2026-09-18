@@ -43,7 +43,7 @@ export default defineConfig({
 
   // [Adapter]
   // https://docs.astro.build/en/guides/deploy/
-  adapter: vercel({ imageService: true }),
+  // adapter: vercel({ imageService: true }), //
   output: 'static',
   // Local (standalone)
   // adapter: node({ mode: 'standalone' }),
@@ -52,7 +52,7 @@ export default defineConfig({
   // [Assets]
   image: {
     responsiveStyles: true,
-    service: { entrypoint: 'astro/assets/services/sharp' },
+   // service: { entrypoint: 'astro/assets/services/sharp' },//
     // domains: ['ghchart.rshah.org'],
     remotePatterns: [{ protocol: 'https' }]
   },
