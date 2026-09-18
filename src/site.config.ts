@@ -42,6 +42,7 @@ export const theme: ThemeUserConfig = {
   header: {
     menu: [
       { title: 'Blog', link: '/blog' },
+      { title: 'Projects', link: '/projects' },
       { title: 'About', link: '/about' }
     ]
   },
@@ -57,7 +58,7 @@ export const theme: ThemeUserConfig = {
       }
     ],
     /** Enable displaying a “Astro & Pure theme powered” link in your site’s footer. */
-    credits: true,
+    credits: false,
     /** Optional details about the social media accounts for this site. */
     social: [
       { icon: 'github', label: 'GitHub', href: 'https://github.com/1s4n4n' },
@@ -83,8 +84,8 @@ export const integ: IntegrationUserConfig = {
     applyTip: [
       { name: 'Name', val: theme.title },
       { name: 'Desc', val: theme.description || 'Null' },
-      { name: 'Link', val: 'https://astro-pure.js.org/' },
-      { name: 'Avatar', val: 'https://astro-pure.js.org/favicon/favicon.ico' }
+      { name: 'Link', val: 'https://1s4n4n.github.io/' },
+      { name: 'Avatar', val: 'https://github.com/1s4n4n.png' }
     ],
     cacheAvatar: false
   },
