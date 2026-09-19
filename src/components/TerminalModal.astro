@@ -1,0 +1,239 @@
+---
+---
+
+<div
+  id="cli-modal"
+  class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 p-4 backdrop-blur-sm"
+>
+  <div
+    class="relative w-full max-w-2xl rounded-lg border border-red-500/40 bg-[#0c0507] p-4 font-mono text-sm shadow-[0_0_35px_rgba(225,29,72,0.25)]"
+  >
+    {/* Header Terminal */}
+    <div
+      class="mb-3 flex items-center justify-between border-b border-red-950 pb-2.5 text-xs text-muted-foreground"
+    >
+      <div class="flex items-center gap-2">
+        <span
+          class="inline-block size-3 cursor-pointer rounded-full bg-red-500/80"
+          id="cli-close-dot"
+        ></span>
+        <span class="inline-block size-3 rounded-full bg-yellow-500/80"></span>
+        <span class="inline-block size-3 rounded-full bg-green-500/80"></span>
+        <span class="ml-2 font-semibold text-red-400">guest@1s4n4n:~</span>
+      </div>
+
+      <span class="text-[11px] opacity-70">
+        ESC or click dot to exit
+      </span>
+    </div>
+
+    {/* Terminal History */}
+    <div
+      id="cli-output"
+      class="max-h-72 space-y-2 overflow-y-auto pr-1 text-foreground/90 select-text"
+    >
+      <p class="text-xs text-muted-foreground">
+        Type
+        <span class="font-bold text-red-400">'help'</span>
+        to see available commands.
+      </p>
+    </div>
+
+    {/* Terminal Input Prompt */}
+    <div
+      class="mt-3 flex items-center gap-2 border-t border-red-950/60 pt-2"
+    >
+      <span class="select-none font-bold text-red-500">&gt;</span>
+
+      <input
+        id="cli-input"
+        type="text"
+        autocomplete="off"
+        spellcheck="false"
+        class="w-full bg-transparent font-mono text-sm text-red-200 outline-none placeholder:text-muted-foreground/40"
+        placeholder="Try: help, ls, cat about, whoami, clear..."
+      />
+    </div>
+  </div>
+</div>
+
+<script>
+  function setupCLI() {
+    const modal = document.getElementById('cli-modal');
+    const input = document.getElementById('cli-input') as HTMLInputElement | null;
+    const output = document.getElementById('cli-output');
+    const closeDot = document.getElementById('cli-close-dot');
+
+    if (!modal || !input || !output) return;
+
+    const toggleCLI = (show?: boolean) => {
+      const isHidden = modal.classList.contains('hidden');
+      const shouldShow = show !== undefined ? show : isHidden;
+
+      if (shouldShow) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        input.focus();
+      } else {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    };
+
+    // Phím tắt ` (backtick) hoặc Ctrl+K
+    window.addEventListener('keydown', (e) => {
+      if (
+        e.key === '`' &&
+        !['INPUT', 'TEXTAREA'].includes(
+          (e.target as HTMLElement)?.tagName
+        )
+      ) {
+        e.preventDefault();
+        toggleCLI();
+      }
+
+      if (
+        (e.ctrlKey || e.metaKey) &&
+        e.key.toLowerCase() === 'k'
+      ) {
+        e.preventDefault();
+        toggleCLI();
+      }
+
+      if (
+        e.key === 'Escape' &&
+        !modal.classList.contains('hidden')
+      ) {
+        toggleCLI(false);
+      }
+    });
+
+    closeDot?.addEventListener('click', () => toggleCLI(false));
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        toggleCLI(false);
+      }
+    });
+
+    const commands: Record<string, string | (() => string)> = {
+      help: () => `Available commands:
+  - <span class="text-red-400">cd [page]</span>     : Navigate (e.g. cd blog, cd projects, cd ..)
+  - <span class="text-red-400">help</span>        : Show this helper
+  - <span class="text-red-400">ls</span>          : List directory pages
+  - <span class="text-red-400">cat about</span>  : View short about
+  - <span class="text-red-400">whoami</span>     : Identity verification
+  - <span class="text-red-400">flag</span>       : ???
+  - <span class="text-red-400">clear</span>      : Clear screen
+  - <span class="text-red-400">exit</span>       : Close terminal`,
+
+      ls: () => `drwxr-xr-x  home/
+drwxr-xr-x  blog/
+drwxr-xr-x  projects/
+drwxr-xr-x  about/`,
+
+      'cat about': () =>
+        `Attack - Defense CTF Player & Mobile Security Enthusiast.
+Exploring Mobile Security, Reverse Engineering & Web Security.`,
+
+      whoami: () =>
+        `root:1s4n4n (guest session authenticated)`,
+
+      flag: () =>
+        `<span class="font-bold text-green-400">FLAG{c4_2_t0t_h4y_x4u_43_t40_ch0n_c4_2}</span>`,
+
+      clear: () => '__CLEAR__',
+
+      exit: () => '__EXIT__',
+    };
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+
+      const val = input.value.trim();
+
+      if (!val) return;
+
+      if (val.toLowerCase() === 'clear') {
+        output.innerHTML = '';
+        input.value = '';
+        return;
+      }
+
+      if (val.toLowerCase() === 'exit') {
+        toggleCLI(false);
+        input.value = '';
+        return;
+      }
+
+      const cmdKey = val.toLowerCase();
+
+      let resp = `<span class="text-red-400/80">Command not found: ${val}. Type 'help' for commands.</span>`;
+
+      if (cmdKey.startsWith('cd')) {
+        const parts = val.split(/\s+/);
+        const target =
+          parts[1]?.toLowerCase().replace(/\/$/, '') || '~';
+
+        const routes: Record<string, string> = {
+          '~': '/',
+          '..': '/',
+          home: '/',
+          blog: '/blog',
+          projects: '/projects',
+          about: '/about',
+        };
+
+        if (routes[target]) {
+          output.innerHTML += `
+            <div>
+              <span class="font-bold text-red-500">&gt;</span>
+              ${val}
+            </div>
+            <div class="text-green-400">
+              Navigating to ${target}...
+            </div>
+          `;
+
+          setTimeout(() => {
+            window.location.href = routes[target];
+          }, 400);
+
+          input.value = '';
+          return;
+        } else {
+          resp = `<span class="text-red-400/80">cd: no such file or directory: ${parts[1]}</span>`;
+        }
+      }
+
+      if (commands[cmdKey]) {
+        resp =
+          typeof commands[cmdKey] === 'function'
+            ? (commands[cmdKey] as () => string)()
+            : commands[cmdKey];
+      }
+
+      // Tạo dòng lệnh đã nhập
+      const line = document.createElement('div');
+
+      line.innerHTML = `
+        <div class="text-xs text-muted-foreground">
+          <span class="font-bold text-red-500">&gt;</span>
+          ${val}
+        </div>
+
+        <div class="mt-0.5 whitespace-pre-wrap leading-relaxed">
+          ${resp}
+        </div>
+      `;
+
+      output.appendChild(line);
+      output.scrollTop = output.scrollHeight;
+
+      input.value = '';
+    });
+  }
+
+  setupCLI();
+  document.addEventListener('astro:page-load', setupCLI);
+</script>

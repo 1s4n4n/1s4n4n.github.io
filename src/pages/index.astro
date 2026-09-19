@@ -35,13 +35,21 @@ if (!images[imagePath])
       <Image
         src={images[imagePath]()}
         alt={config.logo.alt || 'Profile'}
-        class='h-28 w-auto rounded-full border p-1'
+        class='avatar-pulse h-28 w-auto rounded-full border border-red-500/30 p-1'
         loading='eager'
         fetchpriority='high'
       />
 
       <div class='flex flex-col items-center gap-y-4'>
-        <h1 class='text-3xl font-medium'>{config.author}</h1>
+        {/* Hacker Scramble Title */}
+        <h1 
+          id='hacker-title' 
+          class='text-3xl font-mono font-medium tracking-wider cursor-default'
+          data-value={config.author}
+        >
+          {config.author}
+        </h1>
+
         <div class='flex flex-wrap justify-center gap-x-7 gap-y-3'>
           <Label title='HCM City'>
             <Icon name='location' class='size-5' slot='icon' />
@@ -60,7 +68,10 @@ if (!images[imagePath])
 
     <div id='content' class='animate flex flex-col gap-y-10 md:w-4/5 lg:w-5/6'>
       <Section title='About'>
-        <p class='text-muted-foreground'>Attack - Defense CTF Player / Intern Mobile Security Engineer</p>
+        {/* Typewriter Subtitle */}
+        <p class='font-mono text-sm sm:text-base text-red-400 min-h-[1.5rem]'>
+          <span id='typewriter-text'></span><span class='animate-pulse'>_</span>
+        </p>
         <p class='text-muted-foreground'>
         Welcome to my wanderland, where I share blogs about tech, life, and everything in between.
         </p>
@@ -71,7 +82,7 @@ if (!images[imagePath])
           <Section title='Posts'>
             <ul class='flex flex-col gap-y-1.5 sm:gap-y-2'>
               {allPostsByDate.map((p) => (
-                <li class='flex flex-col gap-x-2 sm:flex-row'>
+                <li class='spotlight-card rounded-xl flex flex-col gap-x-2 sm:flex-row'>
                   <PostPreview post={p} />
                 </li>
               ))}
@@ -111,22 +122,24 @@ if (!images[imagePath])
     </Section> */
       }
       <Section title='Education'>
-        <Card
-          as='a'
-          heading='University of Information Technology: VNUHCM'
-          subheading='just trying to graduate early so I can stop wasting money on this school'
-          date='September 2024 - ???'
-        >
-          {
-            /* <ul class='ms-4 list-disc text-muted-foreground'>
-          <li>
-            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Dolore debitis recusandae, ut
-            molestiae laboriosam pariatur!
-          </li>
-          <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestiae, pariatur!</li>
-        </ul> */
-          }
-        </Card>
+        <div class='spotlight-card rounded-xl'>
+          <Card
+            as='a'
+            heading='University of Information Technology: VNUHCM'
+            subheading='just trying to graduate early so I can stop wasting money on this school'
+            date='September 2024 - ???'
+          >
+            {
+              /* <ul class='ms-4 list-disc text-muted-foreground'>
+            <li>
+              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Dolore debitis recusandae, ut
+              molestiae laboriosam pariatur!
+            </li>
+            <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestiae, pariatur!</li>
+          </ul> */
+            }
+          </Card>
+        </div>
       </Section>
 {/*
       <Section title='Website List'>
@@ -159,20 +172,115 @@ if (!images[imagePath])
       </Section>
 */}
       <Section title='Certifications'>
-        <Card
-          as='a'
-          heading='IELTS certificate'
-          subheading='Overall band score: 7.0'
-          date='September 2026'
-        />
+        <div class='spotlight-card rounded-xl'>
+          <Card
+            as='a'
+            heading='IELTS certificate'
+            subheading='Overall band score: 7.0'
+            date='September 2026'
+          />
+        </div>
       </Section>
 
       <Section title='Skills'>
-        <SkillLayout title='Languages' skills={languages} />
-        <SkillLayout title='Analysis Tools' skills={frontend} />
-        <SkillLayout title='Environment' skills={backend} />
+        <div class='spotlight-card rounded-xl p-2'>
+          <SkillLayout title='Languages' skills={languages} />
+        </div>
+        <div class='spotlight-card rounded-xl p-2'>
+          <SkillLayout title='Analysis Tools' skills={frontend} />
+        </div>
+        <div class='spotlight-card rounded-xl p-2'>
+          <SkillLayout title='Environment' skills={backend} />
+        </div>
       </Section>
     </div>
    {/* <Quote class="mt-12"/> */}
   </main>
 </PageLayout>
+
+<script>
+  // 1. Hacker Text Scramble Effect
+  function setupTextScramble() {
+    const letters = '01ABCDEF<>/{}_-~#*!&';
+    const target = document.getElementById('hacker-title');
+    if (!target) return;
+
+    let interval: number | null = null;
+    const originalText = target.dataset.value || target.innerText;
+
+    const runScramble = () => {
+      let iteration = 0;
+      if (interval) clearInterval(interval);
+
+      interval = window.setInterval(() => {
+        target.innerText = originalText
+          .split('')
+          .map((char, index) => {
+            if (index < iteration) {
+              return originalText[index];
+            }
+            return letters[Math.floor(Math.random() * letters.length)];
+          })
+          .join('');
+
+        if (iteration >= originalText.length) {
+          if (interval) clearInterval(interval);
+        }
+        iteration += 1 / 3;
+      }, 30);
+    };
+
+    runScramble();
+    target.onmouseenter = runScramble;
+  }
+
+  // 2. Typewriter Effect for Subtitle
+  function setupTypewriter() {
+    const el = document.getElementById('typewriter-text');
+    if (!el) return;
+
+    const phrases = [
+      'Attack - Defense CTF Player',
+      'Intern Mobile Security Engineer',
+      'Reverse Engineering & Pwnable Enthusiast',
+      'Press ` or Ctrl+K for CLI Terminal'
+    ];
+    let phraseIdx = 0;
+    let charIdx = 0;
+    let isDeleting = false;
+
+    function type() {
+      const current = phrases[phraseIdx];
+      if (isDeleting) {
+        el!.textContent = current.substring(0, charIdx - 1);
+        charIdx--;
+      } else {
+        el!.textContent = current.substring(0, charIdx + 1);
+        charIdx++;
+      }
+
+      let speed = isDeleting ? 30 : 60;
+
+      if (!isDeleting && charIdx === current.length) {
+        speed = 2000; // Dừng lại 2s khi gõ xong
+        isDeleting = true;
+      } else if (isDeleting && charIdx === 0) {
+        isDeleting = false;
+        phraseIdx = (phraseIdx + 1) % phrases.length;
+        speed = 400;
+      }
+
+      setTimeout(type, speed);
+    }
+
+    type();
+  }
+
+  function initHomeEffects() {
+    setupTextScramble();
+    setupTypewriter();
+  }
+
+  initHomeEffects();
+  document.addEventListener('astro:page-load', initHomeEffects);
+</script>
