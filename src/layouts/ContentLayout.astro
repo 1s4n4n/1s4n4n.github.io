@@ -20,7 +20,7 @@ const { meta, highlightColor, back = '/', ...props } = Astro.props
   <main class='mt-6 items-start gap-x-10 md:flex'>
     {/* Sidebar */}
     <aside
-      class='animate top-20 min-w-48 basis-60 overflow-y-scroll max-md:hidden z-40 fixed md:sticky md:order-2 lg:shrink-0 max-md:border max-md:px-4 max-md:py-3 max-md:bg-muted max-md:rounded-xl'
+      class='animate top-20 min-w-48 basis-60 overflow-y-scroll max-md:hidden z-[60] fixed md:sticky md:order-2 lg:shrink-0 max-md:border max-md:px-4 max-md:py-3 max-md:bg-muted max-md:rounded-xl'
       style='height:calc(100vh - 7rem);'
       id='sidebar'
     >
@@ -28,8 +28,8 @@ const { meta, highlightColor, back = '/', ...props } = Astro.props
     </aside>
     <div
       id='sidebar-shade'
-      class='fixed top-0 start-0 w-full h-full'
-      style='display:none;background-color:#00000091;z-index:31'
+      class='pointer-events-auto fixed top-0 start-0 z-50 h-full w-full'
+      style='display:none;background-color:#00000091'
     >
     </div>
 
@@ -80,16 +80,17 @@ const { meta, highlightColor, back = '/', ...props } = Astro.props
   const sidebar = document.getElementById('sidebar')
   const sidebarShade = document.getElementById('sidebar-shade') as HTMLElement
 
-  if (sidebarShade) {
-    sidebarShade.addEventListener('click', () => {
-      toggleSidebar()
-    })
+  sidebarShade?.addEventListener('click', closeSidebar)
+  sidebar?.addEventListener('toc:navigate', closeSidebar)
+
+  function closeSidebar() {
+    sidebar?.classList.remove('show')
+    if (sidebarShade) sidebarShade.style.display = 'none'
   }
 
   function toggleSidebar() {
     if (sidebar && sidebar.classList.contains('show')) {
-      sidebar.classList.remove('show')
-      sidebarShade.style.display = 'none'
+      closeSidebar()
     } else if (sidebar) {
       sidebar.classList.add('show')
       sidebarShade.style.display = 'block'
@@ -107,6 +108,16 @@ const { meta, highlightColor, back = '/', ...props } = Astro.props
     }
   }
   @media (max-width: 769px) {
+    #sidebar {
+      z-index: 60 !important;
+      pointer-events: auto;
+    }
+
+    #sidebar-shade {
+      z-index: 50 !important;
+      pointer-events: auto;
+    }
+
     aside.show {
       display: block !important;
       opacity: 1;

@@ -2,6 +2,7 @@
 import type { MarkdownHeading } from 'astro'
 
 import { generateToc } from '../../plugins/toc'
+import { cn } from '../../utils'
 import TOCHeading from './TOCHeading.astro'
 
 interface Props {
@@ -15,7 +16,7 @@ const { headings, class: className, ...props } = Astro.props
 const toc = generateToc(headings)
 ---
 
-<toc-heading class={className} {...props}>
+<toc-heading class={cn('toc-drawer-content', className)} {...props}>
   <h2 class='font-medium'>TABLE OF CONTENTS</h2>
   <ul class='mt-4'>
     {toc.map((heading) => <TOCHeading heading={heading} />)}
@@ -112,7 +113,13 @@ const toc = generateToc(headings)
               directHeading.textContent || '',
               link.element.getAttribute('href')
             )
-            directHeading.scrollIntoView({ behavior: 'smooth' })
+            directHeading.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            this.dispatchEvent(
+              new CustomEvent('toc:navigate', {
+                bubbles: true,
+                detail: { slug: link.slug }
+              })
+            )
           } else {
             console.warn(`No heading found for slug: ${link.slug}`)
           }
@@ -129,7 +136,15 @@ const toc = generateToc(headings)
 </script>
 
 <style>
+  toc-heading {
+    position: relative;
+    z-index: 70;
+    pointer-events: auto;
+  }
+
   toc-heading :global(.toc-item) {
     display: flow-root;
+    pointer-events: auto;
+    touch-action: manipulation;
   }
 </style>
