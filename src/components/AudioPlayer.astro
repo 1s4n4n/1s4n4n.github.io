@@ -39,13 +39,20 @@
     class="flex items-center gap-2 rounded-full border border-red-500/40 bg-[#0d0608]/85 px-2.5 py-1 shadow-[0_0_12px_rgba(225,29,72,0.25)] backdrop-blur-md transition-all duration-300"
   >
     {/* Đĩa nhạc xoay tròn */}
-    <img 
-      id="player-mini-thumb" 
-      src="/audio/cover1.jpg" 
-      alt="Track" 
-      class="size-5 rounded-full object-cover border border-red-500/50 shrink-0 cursor-pointer"
-      title="Toggle playlist"
-    />
+    <button
+      id="player-mini-thumb-btn"
+      type="button"
+      class="relative -m-2 flex size-9 shrink-0 cursor-pointer items-center justify-center border-0 bg-transparent p-0 touch-manipulation"
+      aria-label="Toggle playlist"
+    >
+      <img
+        id="player-mini-thumb"
+        src="/audio/cover1.jpg"
+        alt="Track"
+        class="size-5 rounded-full border border-red-500/50 object-cover"
+        title="Toggle playlist"
+      />
+    </button>
 
     {/* Equalizer */}
     <div id="audio-equalizer" class="flex items-end gap-[2px] h-2.5 opacity-60 shrink-0">
@@ -55,7 +62,12 @@
     </div>
 
     {/* Nút Play / Pause */}
-    <button id="audio-play-btn" class="text-muted-foreground hover:text-red-400 transition-colors p-0.5 text-xs" aria-label="Play/Pause">
+    <button
+      id="audio-play-btn"
+      type="button"
+      class="relative -m-2 flex size-9 shrink-0 cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-xs text-muted-foreground touch-manipulation transition-colors hover:text-red-400"
+      aria-label="Play/Pause"
+    >
       <span id="audio-play-icon">▶</span>
     </button>
 
@@ -63,7 +75,12 @@
     <span id="audio-current-title" class="max-w-[80px] sm:max-w-[110px] truncate text-red-200">Track 01</span>
 
     {/* Nút Next */}
-    <button id="audio-next-btn" class="text-muted-foreground hover:text-red-400 transition-colors text-[9px] p-0.5" aria-label="Next track">
+    <button
+      id="audio-next-btn"
+      type="button"
+      class="relative -m-2 flex size-9 shrink-0 cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-[9px] text-muted-foreground touch-manipulation transition-colors hover:text-red-400"
+      aria-label="Next track"
+    >
       ⏭
     </button>
 
@@ -131,6 +148,7 @@
     const bannerTitle = document.getElementById('player-banner-title');
     const bannerArtist = document.getElementById('player-banner-artist');
     const miniThumb = document.getElementById('player-mini-thumb') as HTMLImageElement | null;
+    const miniThumbButton = document.getElementById('player-mini-thumb-btn');
 
     if (!audio || !playBtn || !titleEl || !eq || !playlistBox || !playlistUl) return;
 
@@ -249,7 +267,7 @@
     };
 
     listBtn?.addEventListener('click', togglePlaylist);
-    miniThumb?.addEventListener('click', togglePlaylist);
+    miniThumbButton?.addEventListener('click', togglePlaylist);
 
   document.addEventListener('pointerdown', (e) => {
   const target = e.target as HTMLElement;

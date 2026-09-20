@@ -270,14 +270,6 @@ span.katex-display {
   }
 }
 
-header,
-header *,
-div:has(> header),
-.sticky {
-  position: static !important;
-  top: auto !important;
-}
-
 .header-meta .views,
 .header-meta .comments,
 [data-waline] {
@@ -414,9 +406,7 @@ div:has(> header),
 }
 
 
-.article-info .flex.flex-wrap > span:has(svg[data-icon="hashtag"]),
-.article-info span.flex:has(svg),
-.article-info .flex-wrap > span:last-child {
+.article-info .flex.flex-wrap > .basis-full:has(> svg[data-icon="hashtag"]) {
   width: 100% !important;
   display: flex !important;
   flex-wrap: wrap !important;

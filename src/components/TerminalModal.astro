@@ -151,6 +151,18 @@ Exploring Mobile Security, Reverse Engineering & Web Security.`,
       if (e.key !== 'Enter') return;
 
       const val = input.value.trim();
+      const escapeHtml = (value: string) =>
+        value.replace(
+          /[&<>"']/g,
+          (character) =>
+            ({
+              '&': '&amp;',
+              '<': '&lt;',
+              '>': '&gt;',
+              '"': '&quot;',
+              "'": '&#39;'
+            })[character] || character
+        );
 
       if (!val) return;
 
@@ -167,8 +179,9 @@ Exploring Mobile Security, Reverse Engineering & Web Security.`,
       }
 
       const cmdKey = val.toLowerCase();
+      const escapedVal = escapeHtml(val);
 
-      let resp = `<span class="text-red-400/80">Command not found: ${val}. Type 'help' for commands.</span>`;
+      let resp = `<span class="text-red-400/80">Command not found: ${escapedVal}. Type 'help' for commands.</span>`;
 
       if (cmdKey.startsWith('cd')) {
         const parts = val.split(/\s+/);
@@ -188,7 +201,7 @@ Exploring Mobile Security, Reverse Engineering & Web Security.`,
           output.innerHTML += `
             <div>
               <span class="font-bold text-red-500">&gt;</span>
-              ${val}
+              ${escapedVal}
             </div>
             <div class="text-green-400">
               Navigating to ${target}...
@@ -202,7 +215,7 @@ Exploring Mobile Security, Reverse Engineering & Web Security.`,
           input.value = '';
           return;
         } else {
-          resp = `<span class="text-red-400/80">cd: no such file or directory: ${parts[1]}</span>`;
+          resp = `<span class="text-red-400/80">cd: no such file or directory: ${escapeHtml(parts[1] || '')}</span>`;
         }
       }
 
@@ -219,7 +232,7 @@ Exploring Mobile Security, Reverse Engineering & Web Security.`,
       line.innerHTML = `
         <div class="text-xs text-muted-foreground">
           <span class="font-bold text-red-500">&gt;</span>
-          ${val}
+          ${escapedVal}
         </div>
 
         <div class="mt-0.5 whitespace-pre-wrap leading-relaxed">
