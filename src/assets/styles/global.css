@@ -1,4 +1,3 @@
-/* [Animation] */
 @keyframes fade-in-up {
   0% {
     transform: translateY(2rem);
@@ -31,7 +30,7 @@
   animation-delay: 150ms;
 }
 
-/* [Katex] */
+
 span.katex-display {
   overflow-y: scroll;
   padding: 0.5rem;
@@ -50,7 +49,7 @@ span.katex-display {
   padding-inline-start: 0.5rem;
 }
 
-/* [Shiki basic] */
+
 .astro-code {
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
@@ -114,7 +113,7 @@ span.katex-display {
   }
 }
 
-/* [Shiki transformer] */
+
 .astro-code {
   &:has(code) {
     position: relative;
@@ -260,7 +259,7 @@ span.katex-display {
   }
 }
 
-/* Scroll bar */
+
 :root {
   --scrollbar-thumb: hsl(var(--muted-foreground) / var(--un-bg-opacity, 0.3));
 }
@@ -290,9 +289,7 @@ div:has(> header),
   display: none !important;
 }
 
-/* ====================================================
-   Cyber Grid + Ambient Mesh Glow Animation
-   ==================================================== */
+
 
 .glow-mesh-container {
   position: fixed;
@@ -356,7 +353,7 @@ div:has(> header),
   100% { transform: translate(60px, -30px) scale(1); }
 }
 
-/* Lưới Cyber Grid */
+
 .cyber-bg {
   position: fixed;
   inset: 0;
@@ -370,7 +367,7 @@ div:has(> header),
   -webkit-mask-image: radial-gradient(ellipse at center, black 45%, transparent 90%);
 }
 
-/* Hiệu ứng nhịp thở cho Avatar */
+
 .avatar-pulse {
   border-radius: 9999px;
   box-shadow: 0 0 20px rgba(225, 29, 72, 0.35);
@@ -392,9 +389,7 @@ div:has(> header),
   }
 }
 
-/* ====================================================
-   Spotlight Cursor Effect on Cards
-   ==================================================== */
+
 .spotlight-card {
   position: relative;
   overflow: hidden;
@@ -426,4 +421,41 @@ div:has(> header),
 
 .spotlight-card:hover::before {
   opacity: 1;
+}
+
+
+.article-info .flex.flex-wrap > span:has(svg[data-icon="hashtag"]),
+.article-info span.flex:has(svg),
+.article-info .flex-wrap > span:last-child {
+  width: 100% !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 0.35rem 0.5rem !important;
+  margin-top: 0.25rem !important;
+}
+
+
+.article-info svg[data-icon="hashtag"],
+.article-info span > svg {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+  flex-shrink: 0 !important;
+  display: inline-block !important;
+}
+
+
+.article-info span > div {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  white-space: nowrap !important;
+  line-height: 1.2 !important;
+}
+
+.article-info span > div a {
+  display: inline-block !important;
+  white-space: nowrap !important;
 }
