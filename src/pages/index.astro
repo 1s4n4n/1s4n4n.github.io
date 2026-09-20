@@ -1,12 +1,10 @@
 ---
 import { Image } from 'astro:assets'
 
-import { Quote } from 'astro-pure/advanced'
 import { PostPreview } from 'astro-pure/components/pages'
 import { getBlogCollection, sortMDByDate } from 'astro-pure/server'
 import { Button, Card, Icon, Label } from 'astro-pure/user'
 import PageLayout from '@/layouts/BaseLayout.astro'
-import ProjectCard from '@/components/home/ProjectCard.astro'
 import Section from '@/components/home/Section.astro'
 import SkillLayout from '@/components/home/SkillLayout.astro'
 import config from '@/site-config'
@@ -41,7 +39,6 @@ if (!images[imagePath])
       />
 
       <div class='flex flex-col items-center gap-y-4'>
-        {/* Hacker Scramble Title */}
         <h1 
           id='hacker-title' 
           class='text-3xl font-mono font-medium tracking-wider cursor-default'
@@ -68,15 +65,15 @@ if (!images[imagePath])
 
     <div id='content' class='animate flex flex-col gap-y-10 md:w-4/5 lg:w-5/6'>
       <Section title='About'>
-        {/* Typewriter Subtitle */}
         <p class='font-mono text-sm sm:text-base text-red-400 min-h-[1.5rem]'>
           <span id='typewriter-text'></span><span class='animate-pulse'>_</span>
         </p>
         <p class='text-muted-foreground'>
-        Welcome to my wanderland, where I share blogs about tech, life, and everything in between.
+          Welcome to my wanderland, where I share blogs about tech, life, and everything in between.
         </p>
         <Button title='More about me' class='w-fit self-end' href='/about' variant='ahead' />
       </Section>
+
       {
         allPostsByDate.length > 0 && (
           <Section title='Posts'>
@@ -92,35 +89,6 @@ if (!images[imagePath])
         )
       }
 
-      {
-        /* <Section title='Experience'>
-      <Card
-        heading='Lorem Ipsum'
-        subheading='Sit amet consectetur'
-        date='Dec 2022 - Nov 2023'
-        imagePath='/src/assets/about-astro.png'
-        altText='Lorem, ipsum dolor sit'
-        imageClass='h-12 w-auto md:-start-16'
-      >
-        <ul class='ms-4 list-disc text-muted-foreground'>
-          <li>
-            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Dolore debitis recusandae, ut
-            molestiae laboriosam pariatur!
-
-            <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestiae, pariatur!</li>
-          </li>
-        </ul>
-      </Card>
-      <Card
-        heading='Lorem Ipsum'
-        subheading='Sit amet consectetur'
-        date='Dec 2022 - Nov 2023'
-        imagePath='/src/assets/about-astro.png'
-        altText='Lorem, ipsum dolor sit'
-        imageClass='h-12 w-auto md:-start-16'
-      />
-    </Section> */
-      }
       <Section title='Education'>
         <div class='spotlight-card rounded-xl'>
           <Card
@@ -128,49 +96,10 @@ if (!images[imagePath])
             heading='University of Information Technology: VNUHCM'
             subheading='just trying to graduate early so I can stop wasting money on this school'
             date='September 2024 - ???'
-          >
-            {
-              /* <ul class='ms-4 list-disc text-muted-foreground'>
-            <li>
-              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Dolore debitis recusandae, ut
-              molestiae laboriosam pariatur!
-            </li>
-            <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestiae, pariatur!</li>
-          </ul> */
-            }
-          </Card>
-        </div>
-      </Section>
-{/*
-      <Section title='Website List'>
-        <div class='grid grid-cols-1 gap-3 sm:grid-cols-2'>
-          <ProjectCard
-            href='https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-            heading='Lorem ipsum'
-            subheading='Do not go gentle into that good night'
-            imagePath='/src/assets/projects/1.avif'
-          />
-          <ProjectCard
-            href='https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-            heading='Lorem ipsum'
-            subheading='Old age burn and rave at close of day'
-            imagePath='/src/assets/projects/2.avif'
-          />
-          <ProjectCard
-            href='https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-            heading='Lorem ipsum'
-            subheading='Rage, rage against the dying of the light'
-            imagePath='/src/assets/projects/3.avif'
-          />
-          <ProjectCard
-            href='/projects'
-            heading='More projects'
-            subheading='Check out more projects'
-            imagePath='/src/assets/projects/4.avif'
           />
         </div>
       </Section>
-*/}
+
       <Section title='Certifications'>
         <div class='spotlight-card rounded-xl'>
           <Card
@@ -194,12 +123,10 @@ if (!images[imagePath])
         </div>
       </Section>
     </div>
-   {/* <Quote class="mt-12"/> */}
   </main>
 </PageLayout>
 
 <script>
-  // 1. Hacker Text Scramble Effect
   function setupTextScramble() {
     const letters = '01ABCDEF<>/{}_-~#*!&';
     const target = document.getElementById('hacker-title');
@@ -234,7 +161,6 @@ if (!images[imagePath])
     target.onmouseenter = runScramble;
   }
 
-  // 2. Typewriter Effect for Subtitle
   function setupTypewriter() {
     const el = document.getElementById('typewriter-text');
     if (!el) return;
@@ -262,7 +188,7 @@ if (!images[imagePath])
       let speed = isDeleting ? 30 : 60;
 
       if (!isDeleting && charIdx === current.length) {
-        speed = 2000; // Dừng lại 2s khi gõ xong
+        speed = 2000;
         isDeleting = true;
       } else if (isDeleting && charIdx === 0) {
         isDeleting = false;
