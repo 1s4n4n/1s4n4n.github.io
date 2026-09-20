@@ -82,22 +82,22 @@ const dateTimeOptions: Intl.DateTimeFormatOptions = {
     {
       // Tags
       !!tags?.length && (
-        <span class='flex items-center gap-1'>
-          <Icon name='hashtag' class='size-5' />
+        <div class='flex flex-wrap items-center gap-x-2 gap-y-1'>
+          <Icon name='hashtag' class='size-4 shrink-0 text-red-500' />
           {tags.map((tag: string, i: number) => (
-            <div>
+            <span class='inline-flex items-center gap-1.5 whitespace-nowrap'>
               <a
                 aria-label={`View more blogs with the tag ${tag}`}
-                class='hover:underline hover:underline-offset-4'
+                class='hover:underline hover:underline-offset-4 hover:text-red-400 transition-colors'
                 data-pagefind-filter='tag'
                 href={`/tags/${tag}`}
               >
                 {tag}
               </a>
-              {i < tags.length - 1 && '/'}
-            </div>
+              {i < tags.length - 1 && <span class='text-muted-foreground/40 select-none'>/</span>}
+            </span>
           ))}
-        </span>
+        </div>
       )
     }
   </div>
