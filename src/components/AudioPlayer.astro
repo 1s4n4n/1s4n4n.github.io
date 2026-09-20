@@ -33,22 +33,30 @@
     <ul id="playlist-items" class="space-y-1 max-h-40 overflow-y-auto pr-1"></ul>
   </div>
 
-  {/* Thanh điều khiển chính - Hỗ trợ Collapse sang đĩa tròn */}
+  {/* Thanh điều khiển chính */}
   <div 
     id="player-bar"
-    class="pointer-events-auto flex items-center gap-1.5 sm:gap-2.5 rounded-full border border-red-500/40 bg-[#0d0608]/90 p-1 sm:px-3 sm:py-1.5 shadow-[0_0_20px_rgba(225,29,72,0.25)] backdrop-blur-md transition-all duration-300"
+    class="pointer-events-auto flex items-center rounded-full border border-red-500/40 bg-[#0d0608]/90 p-1 shadow-[0_0_20px_rgba(225,29,72,0.25)] backdrop-blur-md transition-all duration-300 sm:px-3.5 sm:py-2"
   >
-    {/* Thumbnail đĩa tròn xoay */}
-    <img 
-      id="player-mini-thumb" 
-      src="/audio/cover1.jpg" 
-      alt="Thumb" 
-      class="size-7 rounded-full object-cover border border-red-500/40 shrink-0 cursor-pointer"
-      title="Bấm để ẩn/hiện thanh điều khiển"
-    />
+    {/* Đĩa nhạc tròn: Click để ẩn/hiện bảng điều khiển trên điện thoại */}
+    <button 
+      id="player-mini-thumb-btn" 
+      type="button" 
+      class="relative flex items-center justify-center shrink-0 rounded-full focus:outline-none"
+      aria-label="Toggle player controls"
+    >
+      <img 
+        id="player-mini-thumb" 
+        src="/audio/cover1.jpg" 
+        alt="Thumb" 
+        class="size-8 sm:size-6 rounded-full object-cover border border-red-500/50"
+      />
+      {/* Equalizer mini nằm đè góc đĩa */}
+      <span id="thumb-dot" class="absolute -top-0.5 -right-0.5 size-2.5 rounded-full bg-red-500 border border-black hidden"></span>
+    </button>
 
-    {/* Phần nội dung có thể ẩn khi thu nhỏ trên mobile */}
-    <div id="player-controls-wrapper" class="flex items-center gap-1.5 sm:gap-2 pr-1">
+    {/* Bảng điều khiển: Mặc định trên Mobile bị ẨN để không che chữ, Desktop luôn hiện (sm:flex) */}
+    <div id="player-controls-wrapper" class="hidden sm:flex items-center gap-2 pl-2 pr-1">
       {/* Equalizer */}
       <div id="audio-equalizer" class="flex items-end gap-[2px] h-3 opacity-60 shrink-0">
         <span class="eq-bar w-[2px] bg-red-500 rounded-full h-1"></span>
@@ -63,7 +71,7 @@
       </button>
 
       {/* Tên bài hát */}
-      <span id="audio-current-title" class="max-w-[65px] sm:max-w-[100px] truncate text-red-200">Track 01</span>
+      <span id="audio-current-title" class="max-w-[80px] sm:max-w-[100px] truncate text-red-200">Track 01</span>
 
       {/* Nút Next */}
       <button id="audio-next-btn" class="text-muted-foreground hover:text-red-400 transition-colors text-[10px] p-1" aria-label="Next track">
@@ -71,7 +79,7 @@
       </button>
 
       {/* Nút mở Playlist */}
-      <button id="audio-list-btn" class="text-muted-foreground hover:text-red-400 transition-colors text-[10px] border-l border-red-950 pl-1.5" aria-label="Open playlist">
+      <button id="audio-list-btn" class="text-muted-foreground hover:text-red-400 transition-colors text-[10px] border-l border-red-950 pl-2" aria-label="Open playlist">
         ☰
       </button>
     </div>
@@ -136,6 +144,8 @@
     const bannerTitle = document.getElementById('player-banner-title');
     const bannerArtist = document.getElementById('player-banner-artist');
     const miniThumb = document.getElementById('player-mini-thumb') as HTMLImageElement | null;
+    const thumbBtn = document.getElementById('player-mini-thumb-btn');
+    const thumbDot = document.getElementById('thumb-dot');
     const controlsWrapper = document.getElementById('player-controls-wrapper');
 
     if (!audio || !playBtn || !titleEl || !eq || !playlistBox || !playlistUl) return;
@@ -176,11 +186,13 @@
         eq.classList.add('playing');
         eq.classList.remove('opacity-60');
         miniThumb?.classList.add('playing-thumb');
+        thumbDot?.classList.remove('hidden');
         if (playIcon) playIcon.textContent = '⏸';
       } else {
         eq.classList.remove('playing');
         eq.classList.add('opacity-60');
         miniThumb?.classList.remove('playing-thumb');
+        thumbDot?.classList.add('hidden');
         if (playIcon) playIcon.textContent = '▶';
       }
       renderPlaylist();
@@ -257,8 +269,8 @@
       playlistBox.classList.toggle('hidden');
     });
 
-    // Bấm vào avatar tròn để thu nhỏ/mở rộng thanh player trên điện thoại
-    miniThumb?.addEventListener('click', () => {
+    // Chạm vào đĩa nhạc trên mobile để bung/thu bảng điều khiển
+    thumbBtn?.addEventListener('click', () => {
       if (window.innerWidth < 640) {
         controlsWrapper?.classList.toggle('hidden');
       } else {

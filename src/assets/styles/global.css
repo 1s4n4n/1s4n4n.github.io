@@ -478,3 +478,8 @@ button:has(svg[data-icon*="list"]),
 button:has(svg[data-icon*="menu"]) {
   z-index: 50 !important;
 }
+
+article {
+  min-height: 120vh !important;
+  padding-bottom: 15rem !important;
+}
