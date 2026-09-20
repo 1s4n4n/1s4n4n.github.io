@@ -273,8 +273,7 @@ span.katex-display {
 header,
 header *,
 div:has(> header),
-.sticky,
-[class*="sticky"] {
+.sticky {
   position: static !important;
   top: auto !important;
 }
