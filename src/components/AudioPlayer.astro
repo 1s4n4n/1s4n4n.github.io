@@ -3,14 +3,14 @@
 
 <div
   id="cyber-audio-player"
-  class="fixed bottom-5 left-5 z-40 flex flex-col font-mono text-xs select-none"
+  class="pointer-events-none fixed bottom-4 left-4 z-40 flex flex-col font-mono text-xs select-none sm:bottom-5 sm:left-5"
 >
   <audio id="bgm-media" preload="auto"></audio>
 
   {/* Khung Playlist + Banner Album */}
   <div 
     id="player-playlist" 
-    class="hidden mb-2.5 w-72 rounded-xl border border-red-500/40 bg-[#0d0608]/95 p-3 shadow-[0_0_25px_rgba(225,29,72,0.3)] backdrop-blur-md"
+    class="pointer-events-auto hidden mb-2.5 w-72 max-w-[85vw] rounded-xl border border-red-500/40 bg-[#0d0608]/95 p-3 shadow-[0_0_25px_rgba(225,29,72,0.3)] backdrop-blur-md"
   >
     {/* Banner bài hát đang chọn */}
     <div class="flex items-center gap-3 pb-3 border-b border-red-950/80 mb-2.5">
@@ -18,7 +18,7 @@
         id="player-cover-banner" 
         src="/audio/cover1.jpg" 
         alt="Track Cover" 
-        class="size-12 rounded-lg object-cover border border-red-500/30 shadow-[0_0_10px_rgba(225,29,72,0.3)] shrink-0"
+        class="size-11 rounded-lg object-cover border border-red-500/30 shadow-[0_0_10px_rgba(225,29,72,0.3)] shrink-0"
       />
       <div class="overflow-hidden">
         <p id="player-banner-title" class="truncate font-semibold text-red-300 text-[13px]">Track Title</p>
@@ -33,23 +33,24 @@
     </div>
 
     {/* Danh sách các bài hát */}
-    <ul id="playlist-items" class="space-y-1 max-h-44 overflow-y-auto pr-1">
+    <ul id="playlist-items" class="space-y-1 max-h-40 overflow-y-auto pr-1">
       {/* Render bằng JS */}
     </ul>
   </div>
 
   {/* Thanh điều khiển mini góc dưới */}
-  <div class="flex items-center gap-2.5 rounded-full border border-red-500/40 bg-[#0d0608]/90 px-3.5 py-2 shadow-[0_0_20px_rgba(225,29,72,0.25)] backdrop-blur-md">
+  <div class="pointer-events-auto flex items-center gap-2 sm:gap-2.5 rounded-full border border-red-500/40 bg-[#0d0608]/90 p-1.5 pr-3 sm:px-3.5 sm:py-2 shadow-[0_0_20px_rgba(225,29,72,0.25)] backdrop-blur-md transition-all duration-300">
     {/* Thumbnail tròn nhỏ trên thanh bar */}
     <img 
       id="player-mini-thumb" 
       src="/audio/cover1.jpg" 
       alt="Thumb" 
-      class="size-5 rounded-full object-cover border border-red-500/40"
+      class="size-6 sm:size-5 rounded-full object-cover border border-red-500/40 shrink-0 cursor-pointer"
+      title="Toggle playlist"
     />
 
     {/* Equalizer */}
-    <div id="audio-equalizer" class="flex items-end gap-[2px] h-3 opacity-60">
+    <div id="audio-equalizer" class="flex items-end gap-[2px] h-3 opacity-60 shrink-0">
       <span class="eq-bar w-[2px] bg-red-500 rounded-full h-1"></span>
       <span class="eq-bar w-[2px] bg-red-500 rounded-full h-2.5"></span>
       <span class="eq-bar w-[2px] bg-red-500 rounded-full h-1.5"></span>
@@ -57,20 +58,20 @@
     </div>
 
     {/* Nút Play / Pause */}
-    <button id="audio-play-btn" class="text-muted-foreground hover:text-red-400 transition-colors">
+    <button id="audio-play-btn" class="text-muted-foreground hover:text-red-400 transition-colors p-1" aria-label="Play/Pause">
       <span id="audio-play-icon">▶</span>
     </button>
 
     {/* Tên bài hát */}
-    <span id="audio-current-title" class="max-w-[100px] truncate text-red-200">Track 01</span>
+    <span id="audio-current-title" class="max-w-[70px] sm:max-w-[100px] truncate text-red-200">Track 01</span>
 
     {/* Nút Next bài */}
-    <button id="audio-next-btn" class="text-muted-foreground hover:text-red-400 transition-colors text-[10px]">
+    <button id="audio-next-btn" class="text-muted-foreground hover:text-red-400 transition-colors text-[10px] p-1" aria-label="Next track">
       ⏭
     </button>
 
     {/* Nút Toggle mở Playlist */}
-    <button id="audio-list-btn" class="text-muted-foreground hover:text-red-400 transition-colors text-[10px] border-l border-red-950 pl-2">
+    <button id="audio-list-btn" class="text-muted-foreground hover:text-red-400 transition-colors text-[10px] border-l border-red-950 pl-2" aria-label="Toggle playlist">
       ☰
     </button>
   </div>
@@ -87,7 +88,6 @@
     100% { height: 12px; }
   }
 
-  /* Ảnh tròn xoay nhẹ khi phát nhạc */
   .playing-thumb {
     animation: rotateThumb 8s linear infinite;
   }
@@ -98,11 +98,6 @@
 </style>
 
 <script>
-  // ==========================================
-  // CÁCH THÊM TRACK Ở ĐÂY:
-  // Cứ copy thêm { title, artist, cover, src }
-  // cover: có thể dùng ảnh trong /audio/ hoặc dán link online
-  // ==========================================
   const playlist = [
     { 
       title: 'Maktone', 
@@ -205,10 +200,8 @@
       renderPlaylist();
     }
 
-    // Nạp track đầu tiên
     loadTrack(currentIndex);
 
-    // Khôi phục mốc phát từ trang trước
     if (isPlaying) {
       audio.currentTime = savedTime;
       audio.play().then(() => {
@@ -258,9 +251,12 @@
       audio.play().catch(console.error);
     });
 
-    listBtn?.addEventListener('click', () => {
+    const togglePlaylist = () => {
       playlistBox.classList.toggle('hidden');
-    });
+    };
+
+    listBtn?.addEventListener('click', togglePlaylist);
+    miniThumb?.addEventListener('click', togglePlaylist);
 
     window.addEventListener('beforeunload', () => {
       localStorage.setItem('bgm_time', audio.currentTime.toString());
