@@ -3,86 +3,74 @@
 
 <div
   id="cyber-audio-player"
-  class="pointer-events-none fixed bottom-3 left-3 z-30 flex flex-col font-mono text-xs select-none sm:bottom-5 sm:left-5"
+  class="absolute top-[3.75rem] left-4 sm:left-7 lg:left-10 z-40 flex items-center font-mono text-xs select-none"
 >
   <audio id="bgm-media" preload="auto"></audio>
 
-  {/* Khung Playlist + Banner Album */}
+  {/* Popup Playlist: Đổ từ góc trái xuống */}
   <div 
     id="player-playlist" 
-    class="pointer-events-auto hidden mb-2.5 w-72 max-w-[85vw] rounded-xl border border-red-500/40 bg-[#0d0608]/95 p-3 shadow-[0_0_25px_rgba(225,29,72,0.3)] backdrop-blur-md"
+    class="hidden absolute left-0 top-full mt-2 z-50 w-72 max-w-[85vw] rounded-xl border border-red-500/40 bg-[#0d0608]/95 p-3 shadow-[0_0_25px_rgba(225,29,72,0.4)] backdrop-blur-md"
   >
-    <div class="flex items-center gap-3 pb-3 border-b border-red-950/80 mb-2.5">
+    <div class="flex items-center gap-3 pb-2.5 border-b border-red-950/80 mb-2">
       <img 
         id="player-cover-banner" 
         src="/audio/cover1.jpg" 
         alt="Track Cover" 
-        class="size-11 rounded-lg object-cover border border-red-500/30 shadow-[0_0_10px_rgba(225,29,72,0.3)] shrink-0"
+        class="size-10 rounded-lg object-cover border border-red-500/30 shrink-0"
       />
       <div class="overflow-hidden">
-        <p id="player-banner-title" class="truncate font-semibold text-red-300 text-[13px]">Track Title</p>
-        <p id="player-banner-artist" class="truncate text-muted-foreground text-[11px]">Artist</p>
+        <p id="player-banner-title" class="truncate font-semibold text-red-300 text-xs">Track Title</p>
+        <p id="player-banner-artist" class="truncate text-muted-foreground text-[10px]">Artist</p>
       </div>
     </div>
 
-    <div class="text-[11px] font-bold text-red-400 pb-1 mb-1.5 flex justify-between items-center">
+    <div class="text-[10px] font-bold text-red-400 pb-1 mb-1 flex justify-between items-center">
       <span>PLAYLIST</span>
-      <span id="playlist-count" class="text-muted-foreground text-[10px]"></span>
+      <span id="playlist-count" class="text-muted-foreground text-[9px]"></span>
     </div>
 
-    <ul id="playlist-items" class="space-y-1 max-h-40 overflow-y-auto pr-1"></ul>
+    <ul id="playlist-items" class="space-y-1 max-h-40 overflow-y-auto pr-1 text-xs"></ul>
   </div>
 
-  {/* Thanh điều khiển chính */}
+  {/* Mini Player Bar: Nằm dưới chữ 1s4n4n góc trái */}
   <div 
     id="player-bar"
-    class="pointer-events-auto flex items-center rounded-full border border-red-500/40 bg-[#0d0608]/90 p-1 shadow-[0_0_20px_rgba(225,29,72,0.25)] backdrop-blur-md transition-all duration-300 sm:px-3.5 sm:py-2"
+    class="flex items-center gap-2 rounded-full border border-red-500/40 bg-[#0d0608]/85 px-2.5 py-1 shadow-[0_0_12px_rgba(225,29,72,0.25)] backdrop-blur-md transition-all duration-300"
   >
-    {/* Đĩa nhạc tròn: Click để ẩn/hiện bảng điều khiển trên điện thoại */}
-    <button 
-      id="player-mini-thumb-btn" 
-      type="button" 
-      class="relative flex items-center justify-center shrink-0 rounded-full focus:outline-none"
-      aria-label="Toggle player controls"
-    >
-      <img 
-        id="player-mini-thumb" 
-        src="/audio/cover1.jpg" 
-        alt="Thumb" 
-        class="size-8 sm:size-6 rounded-full object-cover border border-red-500/50"
-      />
-      {/* Equalizer mini nằm đè góc đĩa */}
-      <span id="thumb-dot" class="absolute -top-0.5 -right-0.5 size-2.5 rounded-full bg-red-500 border border-black hidden"></span>
+    {/* Đĩa nhạc xoay tròn */}
+    <img 
+      id="player-mini-thumb" 
+      src="/audio/cover1.jpg" 
+      alt="Track" 
+      class="size-5 rounded-full object-cover border border-red-500/50 shrink-0 cursor-pointer"
+      title="Toggle playlist"
+    />
+
+    {/* Equalizer */}
+    <div id="audio-equalizer" class="flex items-end gap-[2px] h-2.5 opacity-60 shrink-0">
+      <span class="eq-bar w-[2px] bg-red-500 rounded-full h-1"></span>
+      <span class="eq-bar w-[2px] bg-red-500 rounded-full h-2"></span>
+      <span class="eq-bar w-[2px] bg-red-500 rounded-full h-1.5"></span>
+    </div>
+
+    {/* Nút Play / Pause */}
+    <button id="audio-play-btn" class="text-muted-foreground hover:text-red-400 transition-colors p-0.5 text-xs" aria-label="Play/Pause">
+      <span id="audio-play-icon">▶</span>
     </button>
 
-    {/* Bảng điều khiển: Mặc định trên Mobile bị ẨN để không che chữ, Desktop luôn hiện (sm:flex) */}
-    <div id="player-controls-wrapper" class="hidden sm:flex items-center gap-2 pl-2 pr-1">
-      {/* Equalizer */}
-      <div id="audio-equalizer" class="flex items-end gap-[2px] h-3 opacity-60 shrink-0">
-        <span class="eq-bar w-[2px] bg-red-500 rounded-full h-1"></span>
-        <span class="eq-bar w-[2px] bg-red-500 rounded-full h-2.5"></span>
-        <span class="eq-bar w-[2px] bg-red-500 rounded-full h-1.5"></span>
-        <span class="eq-bar w-[2px] bg-red-500 rounded-full h-3"></span>
-      </div>
+    {/* Tên bài hát */}
+    <span id="audio-current-title" class="max-w-[80px] sm:max-w-[110px] truncate text-red-200">Track 01</span>
 
-      {/* Nút Play / Pause */}
-      <button id="audio-play-btn" class="text-muted-foreground hover:text-red-400 transition-colors p-1" aria-label="Play/Pause">
-        <span id="audio-play-icon">▶</span>
-      </button>
+    {/* Nút Next */}
+    <button id="audio-next-btn" class="text-muted-foreground hover:text-red-400 transition-colors text-[9px] p-0.5" aria-label="Next track">
+      ⏭
+    </button>
 
-      {/* Tên bài hát */}
-      <span id="audio-current-title" class="max-w-[80px] sm:max-w-[100px] truncate text-red-200">Track 01</span>
-
-      {/* Nút Next */}
-      <button id="audio-next-btn" class="text-muted-foreground hover:text-red-400 transition-colors text-[10px] p-1" aria-label="Next track">
-        ⏭
-      </button>
-
-      {/* Nút mở Playlist */}
-      <button id="audio-list-btn" class="text-muted-foreground hover:text-red-400 transition-colors text-[10px] border-l border-red-950 pl-2" aria-label="Open playlist">
-        ☰
-      </button>
-    </div>
+    {/* Nút Toggle mở Playlist */}
+    <button id="audio-list-btn" class="text-muted-foreground hover:text-red-400 transition-colors text-[10px] border-l border-red-950 pl-2" aria-label="Toggle playlist">
+      ☰
+    </button>
   </div>
 </div>
 
@@ -90,11 +78,10 @@
   .playing .eq-bar:nth-child(1) { animation: bounce 0.8s ease-in-out infinite alternate; }
   .playing .eq-bar:nth-child(2) { animation: bounce 0.6s ease-in-out infinite 0.2s alternate; }
   .playing .eq-bar:nth-child(3) { animation: bounce 1.0s ease-in-out infinite 0.4s alternate; }
-  .playing .eq-bar:nth-child(4) { animation: bounce 0.7s ease-in-out infinite 0.1s alternate; }
 
   @keyframes bounce {
     0% { height: 2px; }
-    100% { height: 12px; }
+    100% { height: 10px; }
   }
 
   .playing-thumb {
@@ -144,9 +131,6 @@
     const bannerTitle = document.getElementById('player-banner-title');
     const bannerArtist = document.getElementById('player-banner-artist');
     const miniThumb = document.getElementById('player-mini-thumb') as HTMLImageElement | null;
-    const thumbBtn = document.getElementById('player-mini-thumb-btn');
-    const thumbDot = document.getElementById('thumb-dot');
-    const controlsWrapper = document.getElementById('player-controls-wrapper');
 
     if (!audio || !playBtn || !titleEl || !eq || !playlistBox || !playlistUl) return;
 
@@ -161,15 +145,12 @@
 
       playlist.forEach((track, idx) => {
         const li = document.createElement('li');
-        li.className = `flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition-colors ${
+        li.className = `flex items-center justify-between gap-2 px-2 py-1 rounded cursor-pointer transition-colors ${
           idx === currentIndex ? 'bg-red-950/60 text-red-300 font-semibold' : 'text-muted-foreground hover:bg-red-950/30'
         }`;
         li.innerHTML = `
-          <div class="flex items-center gap-2 overflow-hidden">
-            <span class="text-[10px] text-red-500/70 w-3">${idx + 1}</span>
-            <span class="truncate max-w-[130px]">${track.title}</span>
-          </div>
-          <span class="text-[10px] opacity-60 truncate max-w-[80px]">${track.artist}</span>
+          <span class="truncate max-w-[140px]">${track.title}</span>
+          <span class="text-[10px] opacity-60">${track.artist}</span>
         `;
         li.addEventListener('click', () => {
           currentIndex = idx;
@@ -186,13 +167,11 @@
         eq.classList.add('playing');
         eq.classList.remove('opacity-60');
         miniThumb?.classList.add('playing-thumb');
-        thumbDot?.classList.remove('hidden');
         if (playIcon) playIcon.textContent = '⏸';
       } else {
         eq.classList.remove('playing');
         eq.classList.add('opacity-60');
         miniThumb?.classList.remove('playing-thumb');
-        thumbDot?.classList.add('hidden');
         if (playIcon) playIcon.textContent = '▶';
       }
       renderPlaylist();
@@ -265,18 +244,26 @@
       audio.play().catch(console.error);
     });
 
-    listBtn?.addEventListener('click', () => {
+    const togglePlaylist = () => {
       playlistBox.classList.toggle('hidden');
-    });
+    };
 
-    // Chạm vào đĩa nhạc trên mobile để bung/thu bảng điều khiển
-    thumbBtn?.addEventListener('click', () => {
-      if (window.innerWidth < 640) {
-        controlsWrapper?.classList.toggle('hidden');
-      } else {
-        playlistBox.classList.toggle('hidden');
-      }
-    });
+    listBtn?.addEventListener('click', togglePlaylist);
+    miniThumb?.addEventListener('click', togglePlaylist);
+
+  document.addEventListener('pointerdown', (e) => {
+  const target = e.target as HTMLElement;
+  const player = document.getElementById('cyber-audio-player');
+  if (player && !player.contains(target)) {
+    playlistBox.classList.add('hidden');
+  }
+  });
+
+  playlistUl.addEventListener('click', (e) => {
+  if ((e.target as HTMLElement).closest('li')) {
+    playlistBox.classList.add('hidden');
+  }
+  });
 
     window.addEventListener('beforeunload', () => {
       localStorage.setItem('bgm_time', audio.currentTime.toString());

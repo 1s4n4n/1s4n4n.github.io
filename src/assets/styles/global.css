@@ -483,3 +483,32 @@ article {
   min-height: 120vh !important;
   padding-bottom: 15rem !important;
 }
+
+#toc-mobile,
+.toc-mobile,
+aside[id*="toc"],
+div[id*="toc"],
+[aria-label*="table of contents" i],
+nav:has(a[href^="#"]) {
+  z-index: 100000 !important;
+  pointer-events: auto !important;
+}
+
+#toc-mobile a,
+.toc-mobile a,
+aside[id*="toc"] a,
+div[id*="toc"] a,
+nav a[href^="#"] {
+  position: relative !important;
+  z-index: 100001 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  touch-action: manipulation !important;
+}
+
+#toc-backdrop,
+.toc-backdrop,
+div[class*="backdrop"]:has(+ aside),
+div[class*="overlay"]:has(+ aside) {
+  z-index: 99990 !important;
+}

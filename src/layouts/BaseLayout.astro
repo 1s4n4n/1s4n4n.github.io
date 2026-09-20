@@ -3,7 +3,7 @@ import { Footer, Header, ThemeProvider } from 'astro-pure/components/basic'
 import type { SiteMeta } from 'astro-pure/types'
 import BaseHead from '@/components/BaseHead.astro'
 import config from '@/site-config'
-import TerminalModal from '@/components/TerminalModal.astro' // <-- Thêm dòng này
+import TerminalModal from '@/components/TerminalModal.astro'
 import AudioPlayer from '@/components/AudioPlayer.astro'
 
 import '@/assets/styles/global.css'
@@ -28,14 +28,12 @@ const {
   </head>
 
   <body class='relative flex justify-center bg-background text-foreground' {...props}>
-    {/* 1. Lớp Ambient Glow Mesh động */}
     <div class='glow-mesh-container' aria-hidden='true'>
       <div class='mesh-ball mesh-ball-1'></div>
       <div class='mesh-ball mesh-ball-2'></div>
       <div class='mesh-ball mesh-ball-3'></div>
     </div>
 
-    {/* 2. Lớp lưới Cyber Grid */}
     <div class='cyber-bg' aria-hidden='true'></div>
 
     {
@@ -47,19 +45,20 @@ const {
         />
       )
     }
+
     <div
       id='main-container'
       class='relative z-10 w-full max-w-[70rem] min-h-[100dvh] flex flex-col justify-between'
     >
       <Header />
+      <AudioPlayer />
+
       <div class='flex-1 w-full'>
         <slot />
       </div>
       <Footer />
     </div>
 
-    <AudioPlayer />
-    {/* Nhúng CLI Terminal Modal */}
     <TerminalModal />
 
     <script>
@@ -78,7 +77,6 @@ const {
       document.addEventListener('astro:page-load', setupSpotlight);
     </script>
 
-    {/* Set highlight color */}
     <style define:vars={{ highlightColor }}>
       :global(.highlight) {
         --highlight-fg: color-mix(
