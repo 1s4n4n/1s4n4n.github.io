@@ -3,7 +3,7 @@
 
 <div
   id="cyber-audio-player"
-  class="pointer-events-none fixed bottom-4 left-4 z-40 flex flex-col font-mono text-xs select-none sm:bottom-5 sm:left-5"
+  class="pointer-events-none fixed bottom-3 left-3 z-30 flex flex-col font-mono text-xs select-none sm:bottom-5 sm:left-5"
 >
   <audio id="bgm-media" preload="auto"></audio>
 
@@ -12,7 +12,6 @@
     id="player-playlist" 
     class="pointer-events-auto hidden mb-2.5 w-72 max-w-[85vw] rounded-xl border border-red-500/40 bg-[#0d0608]/95 p-3 shadow-[0_0_25px_rgba(225,29,72,0.3)] backdrop-blur-md"
   >
-    {/* Banner bài hát đang chọn */}
     <div class="flex items-center gap-3 pb-3 border-b border-red-950/80 mb-2.5">
       <img 
         id="player-cover-banner" 
@@ -26,54 +25,56 @@
       </div>
     </div>
 
-    {/* Header Playlist */}
     <div class="text-[11px] font-bold text-red-400 pb-1 mb-1.5 flex justify-between items-center">
       <span>PLAYLIST</span>
       <span id="playlist-count" class="text-muted-foreground text-[10px]"></span>
     </div>
 
-    {/* Danh sách các bài hát */}
-    <ul id="playlist-items" class="space-y-1 max-h-40 overflow-y-auto pr-1">
-      {/* Render bằng JS */}
-    </ul>
+    <ul id="playlist-items" class="space-y-1 max-h-40 overflow-y-auto pr-1"></ul>
   </div>
 
-  {/* Thanh điều khiển mini góc dưới */}
-  <div class="pointer-events-auto flex items-center gap-2 sm:gap-2.5 rounded-full border border-red-500/40 bg-[#0d0608]/90 p-1.5 pr-3 sm:px-3.5 sm:py-2 shadow-[0_0_20px_rgba(225,29,72,0.25)] backdrop-blur-md transition-all duration-300">
-    {/* Thumbnail tròn nhỏ trên thanh bar */}
+  {/* Thanh điều khiển chính - Hỗ trợ Collapse sang đĩa tròn */}
+  <div 
+    id="player-bar"
+    class="pointer-events-auto flex items-center gap-1.5 sm:gap-2.5 rounded-full border border-red-500/40 bg-[#0d0608]/90 p-1 sm:px-3 sm:py-1.5 shadow-[0_0_20px_rgba(225,29,72,0.25)] backdrop-blur-md transition-all duration-300"
+  >
+    {/* Thumbnail đĩa tròn xoay */}
     <img 
       id="player-mini-thumb" 
       src="/audio/cover1.jpg" 
       alt="Thumb" 
-      class="size-6 sm:size-5 rounded-full object-cover border border-red-500/40 shrink-0 cursor-pointer"
-      title="Toggle playlist"
+      class="size-7 rounded-full object-cover border border-red-500/40 shrink-0 cursor-pointer"
+      title="Bấm để ẩn/hiện thanh điều khiển"
     />
 
-    {/* Equalizer */}
-    <div id="audio-equalizer" class="flex items-end gap-[2px] h-3 opacity-60 shrink-0">
-      <span class="eq-bar w-[2px] bg-red-500 rounded-full h-1"></span>
-      <span class="eq-bar w-[2px] bg-red-500 rounded-full h-2.5"></span>
-      <span class="eq-bar w-[2px] bg-red-500 rounded-full h-1.5"></span>
-      <span class="eq-bar w-[2px] bg-red-500 rounded-full h-3"></span>
+    {/* Phần nội dung có thể ẩn khi thu nhỏ trên mobile */}
+    <div id="player-controls-wrapper" class="flex items-center gap-1.5 sm:gap-2 pr-1">
+      {/* Equalizer */}
+      <div id="audio-equalizer" class="flex items-end gap-[2px] h-3 opacity-60 shrink-0">
+        <span class="eq-bar w-[2px] bg-red-500 rounded-full h-1"></span>
+        <span class="eq-bar w-[2px] bg-red-500 rounded-full h-2.5"></span>
+        <span class="eq-bar w-[2px] bg-red-500 rounded-full h-1.5"></span>
+        <span class="eq-bar w-[2px] bg-red-500 rounded-full h-3"></span>
+      </div>
+
+      {/* Nút Play / Pause */}
+      <button id="audio-play-btn" class="text-muted-foreground hover:text-red-400 transition-colors p-1" aria-label="Play/Pause">
+        <span id="audio-play-icon">▶</span>
+      </button>
+
+      {/* Tên bài hát */}
+      <span id="audio-current-title" class="max-w-[65px] sm:max-w-[100px] truncate text-red-200">Track 01</span>
+
+      {/* Nút Next */}
+      <button id="audio-next-btn" class="text-muted-foreground hover:text-red-400 transition-colors text-[10px] p-1" aria-label="Next track">
+        ⏭
+      </button>
+
+      {/* Nút mở Playlist */}
+      <button id="audio-list-btn" class="text-muted-foreground hover:text-red-400 transition-colors text-[10px] border-l border-red-950 pl-1.5" aria-label="Open playlist">
+        ☰
+      </button>
     </div>
-
-    {/* Nút Play / Pause */}
-    <button id="audio-play-btn" class="text-muted-foreground hover:text-red-400 transition-colors p-1" aria-label="Play/Pause">
-      <span id="audio-play-icon">▶</span>
-    </button>
-
-    {/* Tên bài hát */}
-    <span id="audio-current-title" class="max-w-[70px] sm:max-w-[100px] truncate text-red-200">Track 01</span>
-
-    {/* Nút Next bài */}
-    <button id="audio-next-btn" class="text-muted-foreground hover:text-red-400 transition-colors text-[10px] p-1" aria-label="Next track">
-      ⏭
-    </button>
-
-    {/* Nút Toggle mở Playlist */}
-    <button id="audio-list-btn" class="text-muted-foreground hover:text-red-400 transition-colors text-[10px] border-l border-red-950 pl-2" aria-label="Toggle playlist">
-      ☰
-    </button>
   </div>
 </div>
 
@@ -135,6 +136,7 @@
     const bannerTitle = document.getElementById('player-banner-title');
     const bannerArtist = document.getElementById('player-banner-artist');
     const miniThumb = document.getElementById('player-mini-thumb') as HTMLImageElement | null;
+    const controlsWrapper = document.getElementById('player-controls-wrapper');
 
     if (!audio || !playBtn || !titleEl || !eq || !playlistBox || !playlistUl) return;
 
@@ -251,12 +253,18 @@
       audio.play().catch(console.error);
     });
 
-    const togglePlaylist = () => {
+    listBtn?.addEventListener('click', () => {
       playlistBox.classList.toggle('hidden');
-    };
+    });
 
-    listBtn?.addEventListener('click', togglePlaylist);
-    miniThumb?.addEventListener('click', togglePlaylist);
+    // Bấm vào avatar tròn để thu nhỏ/mở rộng thanh player trên điện thoại
+    miniThumb?.addEventListener('click', () => {
+      if (window.innerWidth < 640) {
+        controlsWrapper?.classList.toggle('hidden');
+      } else {
+        playlistBox.classList.toggle('hidden');
+      }
+    });
 
     window.addEventListener('beforeunload', () => {
       localStorage.setItem('bgm_time', audio.currentTime.toString());

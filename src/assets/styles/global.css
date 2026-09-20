@@ -30,7 +30,6 @@
   animation-delay: 150ms;
 }
 
-
 span.katex-display {
   overflow-y: scroll;
   padding: 0.5rem;
@@ -48,7 +47,6 @@ span.katex-display {
   display: inline-block;
   padding-inline-start: 0.5rem;
 }
-
 
 .astro-code {
   margin-top: 0.5rem;
@@ -112,7 +110,6 @@ span.katex-display {
     color: var(--shiki-dark) !important;
   }
 }
-
 
 .astro-code {
   &:has(code) {
@@ -259,7 +256,6 @@ span.katex-display {
   }
 }
 
-
 :root {
   --scrollbar-thumb: hsl(var(--muted-foreground) / var(--un-bg-opacity, 0.3));
 }
@@ -288,8 +284,6 @@ div:has(> header),
 [data-waline] {
   display: none !important;
 }
-
-
 
 .glow-mesh-container {
   position: fixed;
@@ -353,7 +347,6 @@ div:has(> header),
   100% { transform: translate(60px, -30px) scale(1); }
 }
 
-
 .cyber-bg {
   position: fixed;
   inset: 0;
@@ -366,7 +359,6 @@ div:has(> header),
   mask-image: radial-gradient(ellipse at center, black 45%, transparent 90%);
   -webkit-mask-image: radial-gradient(ellipse at center, black 45%, transparent 90%);
 }
-
 
 .avatar-pulse {
   border-radius: 9999px;
@@ -388,7 +380,6 @@ div:has(> header),
     box-shadow: 0 0 32px rgba(225, 29, 72, 0.65);
   }
 }
-
 
 .spotlight-card {
   position: relative;
@@ -435,7 +426,6 @@ div:has(> header),
   margin-top: 0.25rem !important;
 }
 
-
 .article-info svg[data-icon="hashtag"],
 .article-info span > svg {
   width: 14px !important;
@@ -445,7 +435,6 @@ div:has(> header),
   flex-shrink: 0 !important;
   display: inline-block !important;
 }
-
 
 .article-info span > div {
   display: inline-flex !important;
@@ -460,11 +449,32 @@ div:has(> header),
   white-space: nowrap !important;
 }
 
+
 article, main {
-  padding-bottom: 5rem !important;
+  padding-bottom: 6rem !important;
+}
+
+
+html {
+  scroll-behavior: smooth;
+}
+
+:target {
+  scroll-margin-top: 5rem !important;
 }
 
 h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
-  scroll-margin-top: 5.5rem;
-  scroll-margin-bottom: 5.5rem;
+  scroll-margin-top: 5.5rem !important;
+  scroll-margin-bottom: 5.5rem !important;
+}
+
+
+#toc-mobile,
+.toc-mobile,
+aside#toc,
+button[aria-label*="table of contents" i],
+button[aria-label*="TOC" i],
+button:has(svg[data-icon*="list"]),
+button:has(svg[data-icon*="menu"]) {
+  z-index: 50 !important;
 }
