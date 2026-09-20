@@ -1,22 +1,14 @@
 import type { CardListData, Config, IntegrationUserConfig, ThemeUserConfig } from 'astro-pure/types'
 
 export const theme: ThemeUserConfig = {
-  // [Basic]
-  /** Title for your website. Will be used in metadata and as browser tab title. */
   title: '1s4n4n',
-  /** Will be used in index page & copyright declaration */
   author: '1s4n4n',
-  /** Description metadata for your website. Can be used in page metadata. */
   description: 'do it for my dream, my fam & my homies',
-  /** The default favicon for your site which should be a path to an image in the `public/` directory. */
   favicon: '/favicon/favicon.ico',
-  /** The default social card image for your site which should be a path to an image in the `public/` directory. */
   socialCard: '/images/social-card.png',
-  /** Specify the default language for this site. */
   locale: {
     lang: 'en-US',
     attrs: 'en_US',
-    // Date locale
     dateLocale: 'en-US',
     dateOptions: {
       day: 'numeric',
@@ -24,21 +16,15 @@ export const theme: ThemeUserConfig = {
       year: 'numeric'
     }
   },
-  /** Set a logo image to show in the homepage. */
   logo: {
     src: '/src/assets/avatar.gif',
     alt: 'Avatar'
   },
-
   titleDelimiter: '•',
-  prerender: true, // pagefind search is not supported with prerendering disabled
+  prerender: true,
   npmCDN: 'https://cdn.jsdelivr.net/npm',
-
-  // Still in test
   head: [],
   customCss: [],
-
-  /** Configure the header of your site. */
   header: {
     menu: [
       { title: 'Blog', link: '/blog' },
@@ -46,8 +32,6 @@ export const theme: ThemeUserConfig = {
       { title: 'About', link: '/about' }
     ]
   },
-
-  /** Configure the footer of your site. */
   footer: {
     year: `© ${new Date().getFullYear()}`,
     links: [
@@ -57,16 +41,12 @@ export const theme: ThemeUserConfig = {
         pos: 2
       }
     ],
-    /** Enable displaying a “Astro & Pure theme powered” link in your site’s footer. */
     credits: false,
-    /** Optional details about the social media accounts for this site. */
     social: [
       { icon: 'github', label: 'GitHub', href: 'https://github.com/1s4n4n' },
       { icon: 'rss', label: 'RSS', href: '/rss.xml' }
     ]
   },
-
-  // [Content]
   content: {
     externalLinks: {
       content: ' ↗',
@@ -78,14 +58,11 @@ export const theme: ThemeUserConfig = {
 }
 
 export const integ: IntegrationUserConfig = {
-  // [Links]
-  // [Search]
-    waline: {
+  waline: {
     enable: false,
     server: ''
   },
   pagefind: true,
-  // [Quote]
   quote: {
     server: 'https://dummyjson.com/quotes/random',
     target: `(data) => (data.quote.length > 80 ? \`\${data.quote.slice(0, 80)}...\` : data.quote || 'Error')`
@@ -94,13 +71,11 @@ export const integ: IntegrationUserConfig = {
     logbook: [],
     applyTip: []
   },
-  // [Typography]
   typography: {
     class: 'prose text-base',
     blockquoteStyle: 'italic',
     inlineCodeBlockStyle: 'modern'
   },
-  // [Lightbox]
   mediumZoom: {
     enable: true,
     selector: '.prose .zoomable',
@@ -108,7 +83,6 @@ export const integ: IntegrationUserConfig = {
       className: 'zoomable'
     }
   }
-  // Comment system - Đã tắt triệt để pageview và comment
 }
 
 export const terms: CardListData = {

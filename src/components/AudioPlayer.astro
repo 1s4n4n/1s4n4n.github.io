@@ -1,0 +1,271 @@
+---
+---
+
+<div
+  id="cyber-audio-player"
+  class="fixed bottom-5 left-5 z-40 flex flex-col font-mono text-xs select-none"
+>
+  <audio id="bgm-media" preload="auto"></audio>
+
+  {/* Khung Playlist + Banner Album */}
+  <div 
+    id="player-playlist" 
+    class="hidden mb-2.5 w-72 rounded-xl border border-red-500/40 bg-[#0d0608]/95 p-3 shadow-[0_0_25px_rgba(225,29,72,0.3)] backdrop-blur-md"
+  >
+    {/* Banner bài hát đang chọn */}
+    <div class="flex items-center gap-3 pb-3 border-b border-red-950/80 mb-2.5">
+      <img 
+        id="player-cover-banner" 
+        src="/audio/cover1.jpg" 
+        alt="Track Cover" 
+        class="size-12 rounded-lg object-cover border border-red-500/30 shadow-[0_0_10px_rgba(225,29,72,0.3)] shrink-0"
+      />
+      <div class="overflow-hidden">
+        <p id="player-banner-title" class="truncate font-semibold text-red-300 text-[13px]">Track Title</p>
+        <p id="player-banner-artist" class="truncate text-muted-foreground text-[11px]">Artist</p>
+      </div>
+    </div>
+
+    {/* Header Playlist */}
+    <div class="text-[11px] font-bold text-red-400 pb-1 mb-1.5 flex justify-between items-center">
+      <span>PLAYLIST</span>
+      <span id="playlist-count" class="text-muted-foreground text-[10px]"></span>
+    </div>
+
+    {/* Danh sách các bài hát */}
+    <ul id="playlist-items" class="space-y-1 max-h-44 overflow-y-auto pr-1">
+      {/* Render bằng JS */}
+    </ul>
+  </div>
+
+  {/* Thanh điều khiển mini góc dưới */}
+  <div class="flex items-center gap-2.5 rounded-full border border-red-500/40 bg-[#0d0608]/90 px-3.5 py-2 shadow-[0_0_20px_rgba(225,29,72,0.25)] backdrop-blur-md">
+    {/* Thumbnail tròn nhỏ trên thanh bar */}
+    <img 
+      id="player-mini-thumb" 
+      src="/audio/cover1.jpg" 
+      alt="Thumb" 
+      class="size-5 rounded-full object-cover border border-red-500/40"
+    />
+
+    {/* Equalizer */}
+    <div id="audio-equalizer" class="flex items-end gap-[2px] h-3 opacity-60">
+      <span class="eq-bar w-[2px] bg-red-500 rounded-full h-1"></span>
+      <span class="eq-bar w-[2px] bg-red-500 rounded-full h-2.5"></span>
+      <span class="eq-bar w-[2px] bg-red-500 rounded-full h-1.5"></span>
+      <span class="eq-bar w-[2px] bg-red-500 rounded-full h-3"></span>
+    </div>
+
+    {/* Nút Play / Pause */}
+    <button id="audio-play-btn" class="text-muted-foreground hover:text-red-400 transition-colors">
+      <span id="audio-play-icon">▶</span>
+    </button>
+
+    {/* Tên bài hát */}
+    <span id="audio-current-title" class="max-w-[100px] truncate text-red-200">Track 01</span>
+
+    {/* Nút Next bài */}
+    <button id="audio-next-btn" class="text-muted-foreground hover:text-red-400 transition-colors text-[10px]">
+      ⏭
+    </button>
+
+    {/* Nút Toggle mở Playlist */}
+    <button id="audio-list-btn" class="text-muted-foreground hover:text-red-400 transition-colors text-[10px] border-l border-red-950 pl-2">
+      ☰
+    </button>
+  </div>
+</div>
+
+<style>
+  .playing .eq-bar:nth-child(1) { animation: bounce 0.8s ease-in-out infinite alternate; }
+  .playing .eq-bar:nth-child(2) { animation: bounce 0.6s ease-in-out infinite 0.2s alternate; }
+  .playing .eq-bar:nth-child(3) { animation: bounce 1.0s ease-in-out infinite 0.4s alternate; }
+  .playing .eq-bar:nth-child(4) { animation: bounce 0.7s ease-in-out infinite 0.1s alternate; }
+
+  @keyframes bounce {
+    0% { height: 2px; }
+    100% { height: 12px; }
+  }
+
+  /* Ảnh tròn xoay nhẹ khi phát nhạc */
+  .playing-thumb {
+    animation: rotateThumb 8s linear infinite;
+  }
+  @keyframes rotateThumb {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+</style>
+
+<script>
+  // ==========================================
+  // CÁCH THÊM TRACK Ở ĐÂY:
+  // Cứ copy thêm { title, artist, cover, src }
+  // cover: có thể dùng ảnh trong /audio/ hoặc dán link online
+  // ==========================================
+  const playlist = [
+    { 
+      title: 'Maktone', 
+      artist: 'Razor1911', 
+      cover: '/audio/cover1.jpg',
+      src: '/audio/bgm.mp3' 
+    },
+    { 
+      title: 'MTC', 
+      artist: 'S3RL', 
+      cover: '/audio/cover2.jpg',
+      src: '/audio/bgm2.mp3' 
+    },
+    { 
+      title: 'Pika Girl', 
+      artist: 'S3RL', 
+      cover: '/audio/cover3.jpg',
+      src: '/audio/bgm3.mp3' 
+    }
+  ];
+
+  function setupPersistentPlayer() {
+    const audio = document.getElementById('bgm-media') as HTMLAudioElement | null;
+    const playBtn = document.getElementById('audio-play-btn');
+    const playIcon = document.getElementById('audio-play-icon');
+    const nextBtn = document.getElementById('audio-next-btn');
+    const listBtn = document.getElementById('audio-list-btn');
+    const titleEl = document.getElementById('audio-current-title');
+    const eq = document.getElementById('audio-equalizer');
+    const playlistBox = document.getElementById('player-playlist');
+    const playlistUl = document.getElementById('playlist-items');
+    const playlistCount = document.getElementById('playlist-count');
+
+    const coverBanner = document.getElementById('player-cover-banner') as HTMLImageElement | null;
+    const bannerTitle = document.getElementById('player-banner-title');
+    const bannerArtist = document.getElementById('player-banner-artist');
+    const miniThumb = document.getElementById('player-mini-thumb') as HTMLImageElement | null;
+
+    if (!audio || !playBtn || !titleEl || !eq || !playlistBox || !playlistUl) return;
+
+    const savedIndex = parseInt(localStorage.getItem('bgm_index') || '0', 10);
+    let currentIndex = (savedIndex >= 0 && savedIndex < playlist.length) ? savedIndex : 0;
+    const isPlaying = localStorage.getItem('bgm_playing') === 'true';
+    const savedTime = parseFloat(localStorage.getItem('bgm_time') || '0');
+
+    function renderPlaylist() {
+      playlistUl.innerHTML = '';
+      if (playlistCount) playlistCount.textContent = `${playlist.length} tracks`;
+
+      playlist.forEach((track, idx) => {
+        const li = document.createElement('li');
+        li.className = `flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition-colors ${
+          idx === currentIndex ? 'bg-red-950/60 text-red-300 font-semibold' : 'text-muted-foreground hover:bg-red-950/30'
+        }`;
+        li.innerHTML = `
+          <div class="flex items-center gap-2 overflow-hidden">
+            <span class="text-[10px] text-red-500/70 w-3">${idx + 1}</span>
+            <span class="truncate max-w-[130px]">${track.title}</span>
+          </div>
+          <span class="text-[10px] opacity-60 truncate max-w-[80px]">${track.artist}</span>
+        `;
+        li.addEventListener('click', () => {
+          currentIndex = idx;
+          loadTrack(currentIndex);
+          audio.currentTime = 0;
+          audio.play().catch(console.error);
+        });
+        playlistUl.appendChild(li);
+      });
+    }
+
+    function updateUI(playing: boolean) {
+      if (playing) {
+        eq.classList.add('playing');
+        eq.classList.remove('opacity-60');
+        miniThumb?.classList.add('playing-thumb');
+        if (playIcon) playIcon.textContent = '⏸';
+      } else {
+        eq.classList.remove('playing');
+        eq.classList.add('opacity-60');
+        miniThumb?.classList.remove('playing-thumb');
+        if (playIcon) playIcon.textContent = '▶';
+      }
+      renderPlaylist();
+    }
+
+    function loadTrack(idx: number) {
+      const track = playlist[idx];
+      if (!track) return;
+
+      audio.src = track.src;
+      titleEl.textContent = track.title;
+
+      if (coverBanner) coverBanner.src = track.cover;
+      if (bannerTitle) bannerTitle.textContent = track.title;
+      if (bannerArtist) bannerArtist.textContent = track.artist;
+      if (miniThumb) miniThumb.src = track.cover;
+
+      localStorage.setItem('bgm_index', idx.toString());
+      renderPlaylist();
+    }
+
+    // Nạp track đầu tiên
+    loadTrack(currentIndex);
+
+    // Khôi phục mốc phát từ trang trước
+    if (isPlaying) {
+      audio.currentTime = savedTime;
+      audio.play().then(() => {
+        updateUI(true);
+      }).catch(() => {
+        const resumeOnClick = () => {
+          audio.play().then(() => updateUI(true)).catch(() => {});
+          window.removeEventListener('pointerdown', resumeOnClick);
+        };
+        window.addEventListener('pointerdown', resumeOnClick, { once: true });
+      });
+    }
+
+    audio.addEventListener('timeupdate', () => {
+      localStorage.setItem('bgm_time', audio.currentTime.toString());
+    });
+
+    audio.addEventListener('play', () => {
+      localStorage.setItem('bgm_playing', 'true');
+      updateUI(true);
+    });
+
+    audio.addEventListener('pause', () => {
+      localStorage.setItem('bgm_playing', 'false');
+      updateUI(false);
+    });
+
+    audio.addEventListener('ended', () => {
+      currentIndex = (currentIndex + 1) % playlist.length;
+      loadTrack(currentIndex);
+      audio.currentTime = 0;
+      audio.play().catch(console.error);
+    });
+
+    playBtn.addEventListener('click', () => {
+      if (audio.paused) {
+        audio.play().catch(console.error);
+      } else {
+        audio.pause();
+      }
+    });
+
+    nextBtn?.addEventListener('click', () => {
+      currentIndex = (currentIndex + 1) % playlist.length;
+      loadTrack(currentIndex);
+      audio.currentTime = 0;
+      audio.play().catch(console.error);
+    });
+
+    listBtn?.addEventListener('click', () => {
+      playlistBox.classList.toggle('hidden');
+    });
+
+    window.addEventListener('beforeunload', () => {
+      localStorage.setItem('bgm_time', audio.currentTime.toString());
+    });
+  }
+
+  setupPersistentPlayer();
+</script>
