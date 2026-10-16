@@ -19,15 +19,15 @@
       ?.setAttribute('content', theme === 'dark' ? '#0f0f15' : '#fbfaf8')
   }
   simpleSetTheme()
-  document.addEventListener('astro:page-load', () => simpleSetTheme())
 </script>
 
 <script>
   import { Icons } from '../../libs/icons'
-  import { listenThemeChange } from '../../utils'
+  import { listenThemeChange, setTheme } from '../../utils'
 
   // Listen for theme change event
   listenThemeChange()
+  document.addEventListener('astro:after-swap', () => setTheme())
   // Listen for toast event
   document.addEventListener('toast', (e) => {
     const { message, time } = (e as CustomEvent).detail

@@ -2,7 +2,12 @@
 
 ---
 
-<dialog id='cli-modal' aria-labelledby='cli-title' data-pagefind-ignore>
+<dialog
+  id='cli-modal'
+  transition:persist='terminal'
+  aria-labelledby='cli-title'
+  data-pagefind-ignore
+>
   <div class='terminal-header'>
     <h2 id='cli-title'>guest@1s4n4n:~</h2>
     <button class='icon-button' id='cli-close' type='button' aria-label='Close terminal'>×</button>
@@ -93,6 +98,8 @@
   }
 </style>
 <script>
+  import { navigate } from 'astro:transitions/client'
+
   const modal = document.querySelector<HTMLDialogElement>('#cli-modal')!
   const input = modal.querySelector<HTMLInputElement>('#cli-input')!
   const output = modal.querySelector<HTMLElement>('#cli-output')!
@@ -102,9 +109,12 @@
       input.focus()
     }
   }
-  document
-    .querySelectorAll('[data-open-terminal]')
-    .forEach((button) => button.addEventListener('click', open))
+  document.addEventListener('click', (event) => {
+    if ((event.target as Element).closest('[data-open-terminal]')) open()
+  })
+  document.addEventListener('astro:before-swap', () => {
+    if (modal.open) modal.close()
+  })
   modal.querySelector('#cli-close')!.addEventListener('click', () => modal.close())
   modal.addEventListener('click', (event) => {
     const rect = modal.getBoundingClientRect()
@@ -165,7 +175,8 @@
     if (action === 'cd') {
       const target = destination.replace(/\/$/, '')
       if (routes[target]) {
-        window.location.assign(routes[target])
+        modal.close()
+        void navigate(routes[target])
         return
       }
       response = `cd: no such directory: ${destination}`

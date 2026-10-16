@@ -21,12 +21,17 @@ const toc = generateToc(headings)
 </toc-heading>
 <script>
   class TOC extends HTMLElement {
+    private events?: AbortController
+    private frame = 0
+
     connectedCallback() {
+      this.events?.abort()
+      this.events = new AbortController()
+      const { signal } = this.events
       const links = Array.from(this.querySelectorAll<HTMLAnchorElement>('a[href^="#"]'))
       const headings = links
         .map((link) => document.getElementById(decodeURIComponent(link.hash.slice(1))))
         .filter((node): node is HTMLElement => !!node)
-      let pending = false
       const update = () => {
         const active =
           [...headings].reverse().find((heading) => heading.getBoundingClientRect().top <= 130) ||
@@ -37,21 +42,28 @@ const toc = generateToc(headings)
           if (current) link.setAttribute('aria-current', 'location')
           else link.removeAttribute('aria-current')
         })
-        pending = false
+        this.frame = 0
       }
       const onScroll = () => {
-        if (!pending) {
-          pending = true
-          requestAnimationFrame(update)
-        }
+        if (!this.frame) this.frame = requestAnimationFrame(update)
       }
-      window.addEventListener('scroll', onScroll, { passive: true })
-      this.addEventListener('click', (event) => {
-        const link = (event.target as HTMLElement).closest<HTMLAnchorElement>('a[href^="#"]')
-        if (!link) return
-        this.dispatchEvent(new CustomEvent('toc:navigate', { bubbles: true }))
-      })
+      window.addEventListener('scroll', onScroll, { passive: true, signal })
+      this.addEventListener(
+        'click',
+        (event) => {
+          const link = (event.target as HTMLElement).closest<HTMLAnchorElement>('a[href^="#"]')
+          if (!link) return
+          this.dispatchEvent(new CustomEvent('toc:navigate', { bubbles: true }))
+        },
+        { signal }
+      )
       update()
+    }
+
+    disconnectedCallback() {
+      this.events?.abort()
+      cancelAnimationFrame(this.frame)
+      this.frame = 0
     }
   }
   if (!customElements.get('toc-heading')) customElements.define('toc-heading', TOC)

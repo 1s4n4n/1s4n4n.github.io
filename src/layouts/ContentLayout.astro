@@ -42,18 +42,30 @@ const hasSidebar = Astro.slots.has('sidebar')
   <BackToTop header='content-header' content='content' />
 </PageLayout>
 <script>
-  const sidebar = document.querySelector<HTMLDetailsElement>('#sidebar')
-  if (sidebar instanceof HTMLDetailsElement) {
+  let sidebarEvents: AbortController | undefined
+  function setupSidebar() {
+    sidebarEvents?.abort()
+    const sidebar = document.querySelector<HTMLDetailsElement>('#sidebar')
+    if (!sidebar) return
+    sidebarEvents = new AbortController()
+    const { signal } = sidebarEvents
     const wide = window.matchMedia('(min-width: 1024px)')
     const sync = () => {
       sidebar.open = wide.matches
     }
     sync()
-    wide.addEventListener('change', sync)
-    sidebar.addEventListener('toc:navigate', () => {
-      if (!wide.matches) sidebar.open = false
-    })
+    wide.addEventListener('change', sync, { signal })
+    sidebar.addEventListener(
+      'toc:navigate',
+      () => {
+        if (!wide.matches) sidebar.open = false
+      },
+      { signal }
+    )
   }
+  setupSidebar()
+  document.addEventListener('astro:page-load', setupSidebar)
+  document.addEventListener('astro:before-swap', () => sidebarEvents?.abort())
 </script>
 <style>
   .reading-layout {

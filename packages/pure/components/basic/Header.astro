@@ -60,7 +60,12 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/'
   import { getTheme, setTheme } from '../../utils'
 
   class HeaderComponent extends HTMLElement {
+    private events?: AbortController
+
     connectedCallback() {
+      this.events?.abort()
+      this.events = new AbortController()
+      const { signal } = this.events
       const themeButton = this.querySelector<HTMLButtonElement>('#toggleDarkMode')!
       const menuButton = this.querySelector<HTMLButtonElement>('#toggleMenu')!
       const updateThemeLabel = (theme: string) => {
@@ -69,31 +74,49 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/'
         themeButton.title = `Theme: ${theme}`
       }
       updateThemeLabel(getTheme() || 'system')
-      themeButton.addEventListener('click', () =>
-        updateThemeLabel(setTheme(undefined, true) || 'system')
+      themeButton.addEventListener(
+        'click',
+        () => updateThemeLabel(setTheme(undefined, true) || 'system'),
+        { signal }
       )
       const closeMenu = () => {
         this.classList.remove('expanded')
         menuButton.setAttribute('aria-expanded', 'false')
         menuButton.setAttribute('aria-label', 'Open navigation menu')
       }
-      menuButton.addEventListener('click', () => {
-        const expanded = this.classList.toggle('expanded')
-        menuButton.setAttribute('aria-expanded', String(expanded))
-        menuButton.setAttribute(
-          'aria-label',
-          expanded ? 'Close navigation menu' : 'Open navigation menu'
-        )
-      })
-      this.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && this.classList.contains('expanded')) {
-          closeMenu()
-          menuButton.focus()
-        }
-      })
-      document.addEventListener('click', (event) => {
-        if (!this.contains(event.target as Node)) closeMenu()
-      })
+      menuButton.addEventListener(
+        'click',
+        () => {
+          const expanded = this.classList.toggle('expanded')
+          menuButton.setAttribute('aria-expanded', String(expanded))
+          menuButton.setAttribute(
+            'aria-label',
+            expanded ? 'Close navigation menu' : 'Open navigation menu'
+          )
+        },
+        { signal }
+      )
+      this.addEventListener(
+        'keydown',
+        (event) => {
+          if (event.key === 'Escape' && this.classList.contains('expanded')) {
+            closeMenu()
+            menuButton.focus()
+          }
+        },
+        { signal }
+      )
+      document.addEventListener(
+        'click',
+        (event) => {
+          if (!this.contains(event.target as Node)) closeMenu()
+        },
+        { signal }
+      )
+    }
+
+    disconnectedCallback() {
+      this.events?.abort()
     }
   }
   if (!customElements.get('header-component'))
@@ -101,8 +124,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/'
 </script>
 <style>
   header-component {
-    position: sticky;
-    top: 0;
+    position: relative;
     z-index: 40;
     display: flex;
     align-items: center;

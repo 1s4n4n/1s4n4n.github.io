@@ -25,7 +25,7 @@
   color-scheme: dark;
 }
 html {
-  scroll-padding-top: 6rem;
+  scroll-padding-top: 1.5rem;
   scrollbar-gutter: stable;
 }
 body {

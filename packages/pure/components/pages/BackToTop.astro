@@ -9,7 +9,11 @@ const { header: headerName, content: contentName, needPercent = true } = Astro.p
   id='action-buttons'
 >
   <slot name='other-icons' />
-  <scroll-button>
+  <scroll-button
+    data-header={headerName}
+    data-content={contentName}
+    data-percent={String(needPercent)}
+  >
     <button
       aria-label='Back to Top'
       class='relative size-12 flex items-center justify-center rounded-full border-2 border-transparent bg-muted text-muted-foreground duration-300 hover:border-border/75 opacity-0'
@@ -26,91 +30,80 @@ const { header: headerName, content: contentName, needPercent = true } = Astro.p
   </scroll-button>
 </div>
 
-<script is:inline define:vars={{ headerName, contentName, needPercent }}>
+<script>
   class ScrollBtn extends HTMLElement {
-    actionBtns
-    scrollBtn
-    scrollPercentEl
-    targetHeader
-    articleEl
-    scrollHeight = 0
-    articleTop = 0
-    clientHeight = 0
-    ticking = false
-    needPercent = true
-
-    calculateScrollPercent() {
-      const scrollTop = Math.max(0, window.scrollY || document.documentElement.scrollTop)
-      // Before article
-      if (scrollTop < this.articleTop) return 0
-      const maxScrollable = this.scrollHeight - this.clientHeight
-      // After article
-      if (maxScrollable <= 0) return 100
-      const progress = Math.min(scrollTop - this.articleTop, maxScrollable)
-      return Math.round((progress / maxScrollable) * 100)
-    }
-
-    updateScrollPercent() {
-      const percent = this.calculateScrollPercent()
-      this.scrollPercentEl.textContent = percent.toString()
-      this.actionBtns.classList.toggle('ended', percent >= 100)
-      this.ticking = false
-    }
+    private events?: AbortController
+    private observer?: IntersectionObserver
+    private resizeObserver?: ResizeObserver
+    private frame = 0
 
     connectedCallback() {
-      this.needPercent = needPercent
-      this.actionBtns = document.getElementById('action-buttons')
-      this.scrollBtn = this.querySelector('button#to-top-btn')
-      this.scrollPercentEl = this.scrollBtn.querySelector('.top-text .text')
-      this.targetHeader = document.getElementById(headerName)
-      this.articleEl = document.getElementById(contentName)
+      this.events?.abort()
+      this.events = new AbortController()
+      const { signal } = this.events
+      const actionButtons = this.closest<HTMLElement>('#action-buttons')!
+      const button = this.querySelector<HTMLButtonElement>('button')!
+      const percentText = button.querySelector<HTMLElement>('.top-text .text')!
+      const header = document.getElementById(this.dataset.header || '')
+      const content = document.getElementById(this.dataset.content || '')
+      const needPercent = this.dataset.percent === 'true' && !!content
 
-      if (!this.articleEl) {
-        console.error(`Element with ID ${contentName} not found.`)
-        needPercent = false
-      }
-      // Scroll to top action
-      this.scrollBtn.addEventListener('click', this)
-      // Observe header visibility
-      if (this.targetHeader) {
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach((entry) => {
-            this.actionBtns.classList.toggle('show', !entry.isIntersecting)
+      button.addEventListener(
+        'click',
+        () => {
+          window.scrollTo({
+            top: 0,
+            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+              ? 'auto'
+              : 'smooth'
           })
-        })
-        observer.observe(this.targetHeader)
-      } else {
-        console.error(`Element with ID ${headerName} not found.`)
-      }
-      // Scroll percent update
-      if (this.needPercent) {
-        this.scrollHeight = this.articleEl.scrollHeight
-        this.articleTop = this.articleEl.offsetTop
-        this.clientHeight = document.documentElement.clientHeight
+        },
+        { signal }
+      )
 
-        document.addEventListener('scroll', () => {
-          if (!this.ticking) {
-            requestAnimationFrame(() => this.updateScrollPercent())
-            this.ticking = true
-          }
+      if (header) {
+        this.observer = new IntersectionObserver(([entry]) => {
+          actionButtons.classList.toggle('show', !entry.isIntersecting)
         })
-      } else {
-        this.actionBtns.classList.add('ended')
+        this.observer.observe(header)
       }
+
+      const update = () => {
+        this.frame = 0
+        if (!needPercent || !content) {
+          actionButtons.classList.add('ended')
+          return
+        }
+        const top = content.getBoundingClientRect().top + window.scrollY
+        const distance = content.scrollHeight - window.innerHeight
+        const progress =
+          distance > 0
+            ? Math.min(100, Math.max(0, Math.round(((window.scrollY - top) / distance) * 100)))
+            : 100
+        percentText.textContent = String(progress)
+        actionButtons.classList.toggle('ended', progress >= 100)
+      }
+      const schedule = () => {
+        if (!this.frame) this.frame = requestAnimationFrame(update)
+      }
+      window.addEventListener('scroll', schedule, { passive: true, signal })
+      window.addEventListener('resize', schedule, { signal })
+      if (content) {
+        this.resizeObserver = new ResizeObserver(schedule)
+        this.resizeObserver.observe(content)
+      }
+      update()
     }
 
-    handleEvent(event) {
-      if (event.type === 'click') {
-        window.scrollTo({
-          top: 0,
-          behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
-            ? 'auto'
-            : 'smooth'
-        })
-      }
+    disconnectedCallback() {
+      this.events?.abort()
+      this.observer?.disconnect()
+      this.resizeObserver?.disconnect()
+      cancelAnimationFrame(this.frame)
+      this.frame = 0
     }
   }
-  customElements.define('scroll-button', ScrollBtn)
+  if (!customElements.get('scroll-button')) customElements.define('scroll-button', ScrollBtn)
 </script>
 
 <style>

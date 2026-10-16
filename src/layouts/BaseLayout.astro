@@ -1,4 +1,6 @@
 ---
+import { ClientRouter } from 'astro:transitions'
+
 import { Footer, Header, ThemeProvider } from 'astro-pure/components/basic'
 import type { SiteMeta } from 'astro-pure/types'
 import AudioPlayer from '@/components/AudioPlayer.astro'
@@ -22,8 +24,12 @@ const {
 } = Astro.props
 ---
 
-<html lang={lang}>
-  <head><BaseHead {articleDate} {description} {ogImage} {title} /><ThemeProvider /></head>
+<html lang={lang} transition:animate='none'>
+  <head>
+    <BaseHead {articleDate} {description} {ogImage} {title} />
+    <ThemeProvider />
+    <ClientRouter fallback='swap' />
+  </head>
   <body class='relative flex justify-center bg-background text-foreground' {...props}>
     <a class='skip-link' href='#page-content'>Skip to content</a>
     <div class='site-ambient' aria-hidden='true'></div>

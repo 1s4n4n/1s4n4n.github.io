@@ -17,7 +17,11 @@ import '@pagefind/default-ui/css/ui.css'
 </site-search>
 <script>
   class SiteSearch extends HTMLElement {
+    private ui?: { destroy: () => void }
+    private generation = 0
+
     async connectedCallback() {
+      const generation = ++this.generation
       const status = this.querySelector<HTMLElement>('.search-status')!
       if (!this.querySelector('#site-search')) {
         status.hidden = true
@@ -28,17 +32,38 @@ import '@pagefind/default-ui/css/ui.css'
       try {
         // @ts-expect-error Pagefind does not provide default UI declarations.
         const { PagefindUI } = await import('@pagefind/default-ui')
-        new PagefindUI({
+        if (!this.isConnected || generation !== this.generation) return
+        const normalizeUrl = (url: string) => {
+          const target = new URL(url, location.href)
+          target.pathname = target.pathname.replace(/(.+)\/$/, '$1')
+          return target.href
+        }
+        this.ui = new PagefindUI({
           element: '#site-search',
           baseUrl: import.meta.env.BASE_URL,
           bundlePath: `${import.meta.env.BASE_URL.replace(/\/$/, '')}/pagefind/`,
           showImages: false,
-          showSubResults: true
+          showSubResults: true,
+          // Match Astro's trailingSlash: 'never', including result fragments.
+          processResult: (result: { url: string; sub_results?: { url: string }[] }) => {
+            result.url = normalizeUrl(result.url)
+            result.sub_results?.forEach((subResult) => {
+              subResult.url = normalizeUrl(subResult.url)
+            })
+            return result
+          }
         })
         status.hidden = true
       } catch {
         status.textContent = 'Search could not load. Please refresh or browse all posts.'
       }
+    }
+
+    disconnectedCallback() {
+      this.generation++
+      this.ui?.destroy()
+      this.ui = undefined
+      delete this.dataset.ready
     }
   }
   if (!customElements.get('site-search')) customElements.define('site-search', SiteSearch)

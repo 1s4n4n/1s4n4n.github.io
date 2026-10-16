@@ -11,9 +11,25 @@ const { selector = config.integ.mediumZoom.selector, background = 'hsl(var(--bac
   Astro.props
 ---
 
-<script is:inline src={`${config.npmCDN}/medium-zoom/dist/pure/medium-zoom.min.umd.js`}></script>
-<script is:inline define:vars={{ selector, background }}>
-  mediumZoom(selector, { background })
+<image-zoom data-selector={selector} data-background={background}></image-zoom>
+<script>
+  import mediumZoom, { type Zoom } from 'medium-zoom'
+
+  // Reuse one instance so route changes do not accumulate document listeners.
+  let zoom: Zoom | undefined
+  class ImageZoom extends HTMLElement {
+    connectedCallback() {
+      zoom ??= mediumZoom()
+      zoom.update({ background: this.dataset.background })
+      zoom.attach(this.dataset.selector || '')
+    }
+
+    disconnectedCallback() {
+      void zoom?.close()
+      zoom?.detach()
+    }
+  }
+  if (!customElements.get('image-zoom')) customElements.define('image-zoom', ImageZoom)
 </script>
 <style is:global>
   .medium-zoom-overlay {
