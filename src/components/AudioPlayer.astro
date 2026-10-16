@@ -1,292 +1,210 @@
 ---
+
 ---
 
-<div
-  id="cyber-audio-player"
-  class="absolute top-[3.75rem] left-4 sm:left-7 lg:left-10 z-40 flex items-center font-mono text-xs select-none"
->
-  <audio id="bgm-media" preload="auto"></audio>
-
-  {/* Popup Playlist: Đổ từ góc trái xuống */}
-  <div 
-    id="player-playlist" 
-    class="hidden absolute left-0 top-full mt-2 z-50 w-72 max-w-[85vw] rounded-xl border border-red-500/40 bg-[#0d0608]/95 p-3 shadow-[0_0_25px_rgba(225,29,72,0.4)] backdrop-blur-md"
-  >
-    <div class="flex items-center gap-3 pb-2.5 border-b border-red-950/80 mb-2">
-      <img 
-        id="player-cover-banner" 
-        src="/audio/cover1.jpg" 
-        alt="Track Cover" 
-        class="size-10 rounded-lg object-cover border border-red-500/30 shrink-0"
-      />
-      <div class="overflow-hidden">
-        <p id="player-banner-title" class="truncate font-semibold text-red-300 text-xs">Track Title</p>
-        <p id="player-banner-artist" class="truncate text-muted-foreground text-[10px]">Artist</p>
-      </div>
+<details id='cyber-audio-player' data-pagefind-ignore>
+  <summary>Music <span id='audio-state'>Off</span></summary>
+  <div class='player-panel'>
+    <p class='player-caption'>Listen while you browse</p>
+    <p id='audio-current-title' class='track-title'>Maktone · Razor1911</p>
+    <audio id='bgm-media' preload='none'></audio>
+    <div class='player-controls'>
+      <button id='audio-play-btn' type='button' aria-pressed='false'>Play</button>
+      <button id='audio-next-btn' type='button'>Next track</button>
     </div>
-
-    <div class="text-[10px] font-bold text-red-400 pb-1 mb-1 flex justify-between items-center">
-      <span>PLAYLIST</span>
-      <span id="playlist-count" class="text-muted-foreground text-[9px]"></span>
-    </div>
-
-    <ul id="playlist-items" class="space-y-1 max-h-40 overflow-y-auto pr-1 text-xs"></ul>
+    <ul id='playlist-items' aria-label='Choose a track'></ul>
+    <p id='audio-feedback' role='status'>Music starts only when you press Play.</p>
   </div>
-
-  {/* Mini Player Bar: Nằm dưới chữ 1s4n4n góc trái */}
-  <div 
-    id="player-bar"
-    class="flex items-center gap-2 rounded-full border border-red-500/40 bg-[#0d0608]/85 px-2.5 py-1 shadow-[0_0_12px_rgba(225,29,72,0.25)] backdrop-blur-md transition-all duration-300"
-  >
-    {/* Đĩa nhạc xoay tròn */}
-    <button
-      id="player-mini-thumb-btn"
-      type="button"
-      class="relative -m-2 flex size-9 shrink-0 cursor-pointer items-center justify-center border-0 bg-transparent p-0 touch-manipulation"
-      aria-label="Toggle playlist"
-    >
-      <img
-        id="player-mini-thumb"
-        src="/audio/cover1.jpg"
-        alt="Track"
-        class="size-5 rounded-full border border-red-500/50 object-cover"
-        title="Toggle playlist"
-      />
-    </button>
-
-    {/* Equalizer */}
-    <div id="audio-equalizer" class="flex items-end gap-[2px] h-2.5 opacity-60 shrink-0">
-      <span class="eq-bar w-[2px] bg-red-500 rounded-full h-1"></span>
-      <span class="eq-bar w-[2px] bg-red-500 rounded-full h-2"></span>
-      <span class="eq-bar w-[2px] bg-red-500 rounded-full h-1.5"></span>
-    </div>
-
-    {/* Nút Play / Pause */}
-    <button
-      id="audio-play-btn"
-      type="button"
-      class="relative -m-2 flex size-9 shrink-0 cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-xs text-muted-foreground touch-manipulation transition-colors hover:text-red-400"
-      aria-label="Play/Pause"
-    >
-      <span id="audio-play-icon">▶</span>
-    </button>
-
-    {/* Tên bài hát */}
-    <span id="audio-current-title" class="max-w-[80px] sm:max-w-[110px] truncate text-red-200">Track 01</span>
-
-    {/* Nút Next */}
-    <button
-      id="audio-next-btn"
-      type="button"
-      class="relative -m-2 flex size-9 shrink-0 cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-[9px] text-muted-foreground touch-manipulation transition-colors hover:text-red-400"
-      aria-label="Next track"
-    >
-      ⏭
-    </button>
-
-    {/* Nút Toggle mở Playlist */}
-    <button id="audio-list-btn" class="text-muted-foreground hover:text-red-400 transition-colors text-[10px] border-l border-red-950 pl-2" aria-label="Toggle playlist">
-      ☰
-    </button>
-  </div>
-</div>
-
+</details>
 <style>
-  .playing .eq-bar:nth-child(1) { animation: bounce 0.8s ease-in-out infinite alternate; }
-  .playing .eq-bar:nth-child(2) { animation: bounce 0.6s ease-in-out infinite 0.2s alternate; }
-  .playing .eq-bar:nth-child(3) { animation: bounce 1.0s ease-in-out infinite 0.4s alternate; }
-
-  @keyframes bounce {
-    0% { height: 2px; }
-    100% { height: 10px; }
+  details {
+    position: relative;
+    font-size: 0.875rem;
   }
-
-  .playing-thumb {
-    animation: rotateThumb 8s linear infinite;
+  summary {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    list-style: none;
+    border-radius: var(--radius);
+    padding: 0.5rem 0.75rem;
+    color: hsl(var(--muted-foreground));
+    border: 1px solid hsl(var(--border));
+    background: hsl(var(--card));
   }
-  @keyframes rotateThumb {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  summary::before {
+    content: '♫';
+    color: hsl(var(--primary));
+  }
+  summary span {
+    font-size: 0.75rem;
+  }
+  .player-panel {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.5rem);
+    z-index: 45;
+    width: min(21rem, calc(100vw - 2rem));
+    padding: 1rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    background: hsl(var(--card));
+    box-shadow: 0 12px 30px #0002;
+  }
+  .player-caption,
+  #audio-feedback {
+    color: hsl(var(--muted-foreground));
+    font-size: 0.8rem;
+  }
+  .track-title {
+    margin-block: 0.5rem 1rem;
+    font-weight: 600;
+  }
+  .player-controls {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  button {
+    min-height: 44px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.5rem;
+    background: hsl(var(--muted));
+    color: hsl(var(--foreground));
+  }
+  ul {
+    margin-block: 0.75rem;
+  }
+  li + li {
+    margin-top: 0.25rem;
+  }
+  li :global(button) {
+    width: 100%;
+    text-align: left;
+    min-height: 44px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.5rem;
+    background: hsl(var(--muted));
+    color: hsl(var(--foreground));
+  }
+  li :global(button[aria-current='true']) {
+    color: hsl(var(--primary));
+    border-color: hsl(var(--primary));
   }
 </style>
-
 <script>
   const playlist = [
-    { 
-      title: 'Maktone', 
-      artist: 'Razor1911', 
-      cover: '/audio/cover1.jpg',
-      src: '/audio/bgm.mp3' 
-    },
-    { 
-      title: 'MTC', 
-      artist: 'S3RL', 
-      cover: '/audio/cover2.jpg',
-      src: '/audio/bgm2.mp3' 
-    },
-    { 
-      title: 'Pika Girl', 
-      artist: 'S3RL', 
-      cover: '/audio/cover3.jpg',
-      src: '/audio/bgm3.mp3' 
+    { title: 'Maktone', artist: 'Razor1911', src: '/audio/bgm.mp3' },
+    { title: 'MTC', artist: 'S3RL', src: '/audio/bgm2.mp3' },
+    { title: 'Pika Girl', artist: 'S3RL', src: '/audio/bgm3.mp3' }
+  ]
+  const root = document.querySelector<HTMLDetailsElement>('#cyber-audio-player')!
+  const audio = root.querySelector<HTMLAudioElement>('audio')!
+  const play = root.querySelector<HTMLButtonElement>('#audio-play-btn')!
+  const title = root.querySelector<HTMLElement>('#audio-current-title')!
+  const state = root.querySelector<HTMLElement>('#audio-state')!
+  const feedback = root.querySelector<HTMLElement>('#audio-feedback')!
+  const list = root.querySelector<HTMLUListElement>('#playlist-items')!
+  const read = (key: string) => {
+    try {
+      return localStorage.getItem(key)
+    } catch {
+      return null
     }
-  ];
-
-  function setupPersistentPlayer() {
-    const audio = document.getElementById('bgm-media') as HTMLAudioElement | null;
-    const playBtn = document.getElementById('audio-play-btn');
-    const playIcon = document.getElementById('audio-play-icon');
-    const nextBtn = document.getElementById('audio-next-btn');
-    const listBtn = document.getElementById('audio-list-btn');
-    const titleEl = document.getElementById('audio-current-title');
-    const eq = document.getElementById('audio-equalizer');
-    const playlistBox = document.getElementById('player-playlist');
-    const playlistUl = document.getElementById('playlist-items');
-    const playlistCount = document.getElementById('playlist-count');
-
-    const coverBanner = document.getElementById('player-cover-banner') as HTMLImageElement | null;
-    const bannerTitle = document.getElementById('player-banner-title');
-    const bannerArtist = document.getElementById('player-banner-artist');
-    const miniThumb = document.getElementById('player-mini-thumb') as HTMLImageElement | null;
-    const miniThumbButton = document.getElementById('player-mini-thumb-btn');
-
-    if (!audio || !playBtn || !titleEl || !eq || !playlistBox || !playlistUl) return;
-
-    const savedIndex = parseInt(localStorage.getItem('bgm_index') || '0', 10);
-    let currentIndex = (savedIndex >= 0 && savedIndex < playlist.length) ? savedIndex : 0;
-    const isPlaying = localStorage.getItem('bgm_playing') === 'true';
-    const savedTime = parseFloat(localStorage.getItem('bgm_time') || '0');
-
-    function renderPlaylist() {
-      playlistUl.innerHTML = '';
-      if (playlistCount) playlistCount.textContent = `${playlist.length} tracks`;
-
-      playlist.forEach((track, idx) => {
-        const li = document.createElement('li');
-        li.className = `flex items-center justify-between gap-2 px-2 py-1 rounded cursor-pointer transition-colors ${
-          idx === currentIndex ? 'bg-red-950/60 text-red-300 font-semibold' : 'text-muted-foreground hover:bg-red-950/30'
-        }`;
-        li.innerHTML = `
-          <span class="truncate max-w-[140px]">${track.title}</span>
-          <span class="text-[10px] opacity-60">${track.artist}</span>
-        `;
-        li.addEventListener('click', () => {
-          currentIndex = idx;
-          loadTrack(currentIndex);
-          audio.currentTime = 0;
-          audio.play().catch(console.error);
-        });
-        playlistUl.appendChild(li);
-      });
-    }
-
-    function updateUI(playing: boolean) {
-      if (playing) {
-        eq.classList.add('playing');
-        eq.classList.remove('opacity-60');
-        miniThumb?.classList.add('playing-thumb');
-        if (playIcon) playIcon.textContent = '⏸';
-      } else {
-        eq.classList.remove('playing');
-        eq.classList.add('opacity-60');
-        miniThumb?.classList.remove('playing-thumb');
-        if (playIcon) playIcon.textContent = '▶';
+  }
+  const save = (key: string, value: string) => {
+    try {
+      localStorage.setItem(key, value)
+    } catch {}
+  }
+  let index = Number(read('bgm_index') || 0)
+  if (!Number.isInteger(index) || !playlist[index]) index = 0
+  let loadedIndex = -1
+  function render() {
+    title.textContent = `${playlist[index].title} · ${playlist[index].artist}`
+    list
+      .querySelectorAll('button')
+      .forEach((button, i) => button.setAttribute('aria-current', String(i === index)))
+  }
+  async function start() {
+    play.disabled = true
+    try {
+      if (loadedIndex !== index) {
+        audio.src = playlist[index].src
+        loadedIndex = index
+        const savedTime = Number(read('bgm_time') || 0)
+        const sameTrack = Number(read('bgm_index') || 0) === index
+        audio.addEventListener(
+          'loadedmetadata',
+          () => {
+            if (
+              sameTrack &&
+              Number.isFinite(savedTime) &&
+              savedTime > 0 &&
+              savedTime < audio.duration
+            )
+              audio.currentTime = savedTime
+          },
+          { once: true }
+        )
+        save('bgm_index', String(index))
       }
-      renderPlaylist();
+      await audio.play()
+      feedback.textContent = 'Pause here whenever you want.'
+    } catch {
+      feedback.textContent = 'Unable to play this track. Please try again.'
+    } finally {
+      play.disabled = false
     }
-
-    function loadTrack(idx: number) {
-      const track = playlist[idx];
-      if (!track) return;
-
-      audio.src = track.src;
-      titleEl.textContent = track.title;
-
-      if (coverBanner) coverBanner.src = track.cover;
-      if (bannerTitle) bannerTitle.textContent = track.title;
-      if (bannerArtist) bannerArtist.textContent = track.artist;
-      if (miniThumb) miniThumb.src = track.cover;
-
-      localStorage.setItem('bgm_index', idx.toString());
-      renderPlaylist();
+  }
+  playlist.forEach((track, i) => {
+    const li = document.createElement('li')
+    const button = document.createElement('button')
+    button.type = 'button'
+    button.textContent = `${track.title} · ${track.artist}`
+    button.addEventListener('click', () => {
+      index = i
+      render()
+      void start()
+    })
+    li.append(button)
+    list.append(li)
+  })
+  render()
+  play.addEventListener('click', () => {
+    if (audio.paused) void start()
+    else audio.pause()
+  })
+  const next = () => {
+    index = (index + 1) % playlist.length
+    render()
+    void start()
+  }
+  root.querySelector('#audio-next-btn')!.addEventListener('click', next)
+  audio.addEventListener('ended', next)
+  const update = () => {
+    play.textContent = audio.paused ? 'Play' : 'Pause'
+    play.setAttribute('aria-pressed', String(!audio.paused))
+    state.textContent = audio.paused ? 'Off' : 'Playing'
+  }
+  audio.addEventListener('play', update)
+  audio.addEventListener('pause', update)
+  window.addEventListener('pagehide', () => {
+    if (loadedIndex >= 0) save('bgm_time', String(audio.currentTime))
+  })
+  document.addEventListener('click', (event) => {
+    if (!root.contains(event.target as Node)) root.open = false
+  })
+  root.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      root.open = false
+      root.querySelector('summary')?.focus()
     }
-
-    loadTrack(currentIndex);
-
-    if (isPlaying) {
-      audio.currentTime = savedTime;
-      audio.play().then(() => {
-        updateUI(true);
-      }).catch(() => {
-        const resumeOnClick = () => {
-          audio.play().then(() => updateUI(true)).catch(() => {});
-          window.removeEventListener('pointerdown', resumeOnClick);
-        };
-        window.addEventListener('pointerdown', resumeOnClick, { once: true });
-      });
-    }
-
-    audio.addEventListener('timeupdate', () => {
-      localStorage.setItem('bgm_time', audio.currentTime.toString());
-    });
-
-    audio.addEventListener('play', () => {
-      localStorage.setItem('bgm_playing', 'true');
-      updateUI(true);
-    });
-
-    audio.addEventListener('pause', () => {
-      localStorage.setItem('bgm_playing', 'false');
-      updateUI(false);
-    });
-
-    audio.addEventListener('ended', () => {
-      currentIndex = (currentIndex + 1) % playlist.length;
-      loadTrack(currentIndex);
-      audio.currentTime = 0;
-      audio.play().catch(console.error);
-    });
-
-    playBtn.addEventListener('click', () => {
-      if (audio.paused) {
-        audio.play().catch(console.error);
-      } else {
-        audio.pause();
-      }
-    });
-
-    nextBtn?.addEventListener('click', () => {
-      currentIndex = (currentIndex + 1) % playlist.length;
-      loadTrack(currentIndex);
-      audio.currentTime = 0;
-      audio.play().catch(console.error);
-    });
-
-    const togglePlaylist = () => {
-      playlistBox.classList.toggle('hidden');
-    };
-
-    listBtn?.addEventListener('click', togglePlaylist);
-    miniThumbButton?.addEventListener('click', togglePlaylist);
-
-  document.addEventListener('pointerdown', (e) => {
-  const target = e.target as HTMLElement;
-  const player = document.getElementById('cyber-audio-player');
-  if (player && !player.contains(target)) {
-    playlistBox.classList.add('hidden');
-  }
-  });
-
-  playlistUl.addEventListener('click', (e) => {
-  if ((e.target as HTMLElement).closest('li')) {
-    playlistBox.classList.add('hidden');
-  }
-  });
-
-    window.addEventListener('beforeunload', () => {
-      localStorage.setItem('bgm_time', audio.currentTime.toString());
-    });
-  }
-
-  setupPersistentPlayer();
+  })
 </script>

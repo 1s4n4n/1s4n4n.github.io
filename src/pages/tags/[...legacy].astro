@@ -1,0 +1,24 @@
+---
+import type { GetStaticPaths } from 'astro'
+
+import { getBlogCollection, getUniqueTags } from 'astro-pure/server'
+import { getTagSlug, getTagUrl } from 'astro-pure/utils'
+
+interface Props {
+  destination: string
+}
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const tags = getUniqueTags(await getBlogCollection())
+  const slugs = tags.map(getTagSlug)
+  if (new Set(slugs).size !== slugs.length) throw new Error('Tag slugs must be unique.')
+  return tags
+    .filter((tag) => tag !== getTagSlug(tag))
+    .map((tag) => ({
+      params: { legacy: tag },
+      props: { destination: getTagUrl(tag) }
+    }))
+}
+const { destination } = Astro.props
+return Astro.redirect(destination)
+---

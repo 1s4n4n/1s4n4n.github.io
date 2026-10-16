@@ -1,5 +1,4 @@
-import { spawn } from 'node:child_process'
-import { dirname, relative } from 'node:path'
+import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 // Astro
 import type { AstroIntegration, RehypePlugins, RemarkPlugins } from 'astro'
@@ -8,6 +7,7 @@ import mdx from '@astrojs/mdx'
 import sitemap from '@astrojs/sitemap'
 import UnoCSS from '@unocss/astro'
 import { AstroError } from 'astro/errors'
+import { close, createIndex } from 'pagefind'
 
 import rehypeExternalLinks from './plugins/rehype-external-links'
 import rehypeImageCaption from './plugins/rehype-image-caption'
@@ -95,18 +95,26 @@ export default function AstroPureIntegration(opts: UserInputConfig): AstroIntegr
         })
       },
 
-      'astro:build:done': ({ dir }) => {
+      'astro:build:done': async ({ dir }) => {
         if (!opts.integ.pagefind) return
         const targetDir = fileURLToPath(dir)
-        const cwd = dirname(fileURLToPath(import.meta.url))
-        const relativeDir = relative(cwd, targetDir)
-        return new Promise<void>((resolve) => {
-          spawn('npx', ['-y', 'pagefind', '--site', relativeDir], {
-            stdio: 'inherit',
-            shell: true,
-            cwd
-          }).on('close', () => resolve())
+        // Keep one shared search index while each article retains its actual HTML language.
+        const { index, errors } = await createIndex({
+          forceLanguage: (opts.locale.lang || 'en').split('-')[0]
         })
+        if (!index || errors.length) {
+          await close()
+          throw new Error(errors.join('\n') || 'Could not create search index')
+        }
+        try {
+          const indexed = await index.addDirectory({ path: targetDir })
+          if (indexed.errors.length) throw new Error(indexed.errors.join('\n'))
+          const written = await index.writeFiles({ outputPath: resolve(targetDir, 'pagefind') })
+          if (written.errors.length) throw new Error(written.errors.join('\n'))
+          console.log(`Pagefind: processed ${indexed.page_count} HTML pages`)
+        } finally {
+          await close()
+        }
       }
     }
   }

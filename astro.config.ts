@@ -53,7 +53,7 @@ export default defineConfig({
         rehypeAutolinkHeadings,
         {
           behavior: 'append',
-          properties: { className: ['anchor'] },
+          properties: { className: ['anchor'], 'data-pagefind-ignore': true },
           content: { type: 'text', value: '#' }
         }
       ]
@@ -83,9 +83,7 @@ export default defineConfig({
       ]
     }
   },
-  integrations: [
-    AstroPureIntegration(config)
-  ],
+  integrations: [AstroPureIntegration(config)],
   experimental: {
     contentIntellisense: true,
     svgOptimizer: svgoOptimizer(),

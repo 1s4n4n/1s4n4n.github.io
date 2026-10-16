@@ -9,204 +9,184 @@ import Section from '@/components/home/Section.astro'
 import SkillLayout from '@/components/home/SkillLayout.astro'
 import config from '@/site-config'
 
-const languages = ['C/C++', 'JavaScript', 'Python', 'Java']
-const frontend = ['IDA', 'adb', 'jadx', 'gdb/gef']
-const backend = ['VMware', 'Android Studio', 'docker', 'kali']
-
-const MAX_POSTS = 10
-const allPosts = await getBlogCollection()
-const allPostsByDate = sortMDByDate(allPosts).slice(0, MAX_POSTS)
-
-const imagePath = config.logo.src
+const posts = sortMDByDate(await getBlogCollection()).slice(0, 4)
 const images = import.meta.glob<{ default: ImageMetadata }>(
   '/src/assets/*.{jpeg,jpg,png,gif,avif,webp}'
 )
-if (!images[imagePath])
-  throw new Error(
-    `"${imagePath}" does not exist in glob: "src/assets/*.{jpeg,jpg,png,gif,avif,webp}"`
-  )
+const avatar = images[config.logo.src]
+if (!avatar) throw new Error(`Avatar not found: ${config.logo.src}`)
 ---
 
-<PageLayout meta={{ title: 'Home' }} highlightColor='#ff0000'>
-  <main class='flex w-full flex-col items-center'>
-    <section class='animate mb-10 flex flex-col items-center gap-y-7' id='content-header'>
+<PageLayout meta={{ title: 'Home' }}>
+  <main class='home-content'>
+    <section class='home-intro' id='content-header' aria-labelledby='home-title'>
       <Image
-        src={images[imagePath]()}
+        src={avatar()}
         alt={config.logo.alt || 'Profile'}
-        class='avatar-pulse h-28 w-auto rounded-full border border-red-500/30 p-1'
+        class='home-avatar'
+        width={192}
+        format='webp'
         loading='eager'
-        fetchpriority='high'
       />
-
-      <div class='flex flex-col items-center gap-y-4'>
-        <h1 
-          id='hacker-title' 
-          class='text-3xl font-mono font-medium tracking-wider cursor-default'
-          data-value={config.author}
-        >
-          {config.author}
-        </h1>
-
-        <div class='flex flex-wrap justify-center gap-x-7 gap-y-3'>
-          <Label title='HCM City'>
-            <Icon name='location' class='size-5' slot='icon' />
-          </Label>
-          <Label
-            title='Github'
-            as='a'
+      <div>
+        <p class='intro-eyebrow'>SECURITY · RESEARCH · WRITEUPS</p>
+        <h1 id='home-title'>{config.author}</h1>
+        <p class='intro-role'>CTF player & mobile security enthusiast.</p>
+        <p class='intro-description'>
+          Notes on reverse engineering, security, and the things I learn along the way.
+        </p>
+        <div class='intro-meta'>
+          <Label title='HCM City'><Icon name='location' class='size-4' slot='icon' /></Label>
+          <a
             href='https://github.com/1s4n4n'
+            class='inline-flex items-center gap-2'
             target='_blank'
+            rel='noreferrer'><Icon name='github' class='size-4' />GitHub</a
           >
-            <Icon name='github' class='size-5' slot='icon' />
-          </Label>
+        </div>
+        <div class='intro-actions'>
+          <Button title='Browse posts' href='/blog' variant='ahead' /><Button
+            title='About me'
+            href='/about'
+          />
         </div>
       </div>
     </section>
-
-    <div id='content' class='animate flex flex-col gap-y-10 md:w-4/5 lg:w-5/6'>
-      <Section title='About'>
-        <p class='font-mono text-sm sm:text-base text-red-400 min-h-[1.5rem]'>
-          <span id='typewriter-text'></span><span class='animate-pulse'>_</span>
-        </p>
-        <p class='text-muted-foreground'>
-          Welcome to my wanderland, where I share blogs about tech, life, and everything in between.
-        </p>
-        <Button title='More about me' class='w-fit self-end' href='/about' variant='ahead' />
-      </Section>
-
+    <div id='content' class='home-sections'>
       {
-        allPostsByDate.length > 0 && (
-          <Section title='Posts'>
-            <ul class='flex flex-col gap-y-1.5 sm:gap-y-2'>
-              {allPostsByDate.map((p) => (
-                <li class='spotlight-card rounded-xl flex flex-col gap-x-2 sm:flex-row'>
-                  <PostPreview post={p} />
-                </li>
+        !!posts.length && (
+          <section aria-labelledby='latest-posts'>
+            <div class='section-heading'>
+              <>
+                <h2 id='latest-posts'>Latest posts</h2>
+                <a href='/blog'>All posts →</a>
+              </>
+            </div>
+            <ul class='post-list'>
+              {posts.map((post) => (
+                <PostPreview {post} detailed />
               ))}
             </ul>
-            <Button title='More posts' class='w-fit self-end' href='/blog' variant='ahead' />
-          </Section>
+          </section>
         )
       }
-
-      <Section title='Education'>
-        <div class='spotlight-card rounded-xl'>
+      <Section title='Background'>
+        <div class='background-cards'>
+          <Card heading='University of Information Technology: VNUHCM' date='From September 2024' />
           <Card
-            as='a'
-            heading='University of Information Technology: VNUHCM'
-            subheading='just trying to graduate early so I can stop wasting money on this school'
-            date='September 2024 - ???'
-          />
-        </div>
-      </Section>
-
-      <Section title='Certifications'>
-        <div class='spotlight-card rounded-xl'>
-          <Card
-            as='a'
             heading='IELTS certificate'
             subheading='Overall band score: 7.0'
             date='September 2026'
           />
         </div>
       </Section>
-
       <Section title='Skills'>
-        <div class='spotlight-card rounded-xl p-2'>
-          <SkillLayout title='Languages' skills={languages} />
-        </div>
-        <div class='spotlight-card rounded-xl p-2'>
-          <SkillLayout title='Analysis Tools' skills={frontend} />
-        </div>
-        <div class='spotlight-card rounded-xl p-2'>
-          <SkillLayout title='Environment' skills={backend} />
-        </div>
+        <SkillLayout title='Languages' skills={['C/C++', 'JavaScript', 'Python', 'Java']} />
+        <SkillLayout title='Analysis tools' skills={['IDA', 'adb', 'jadx', 'gdb/gef']} />
+        <SkillLayout title='Environment' skills={['VMware', 'Android Studio', 'Docker', 'Kali']} />
       </Section>
     </div>
   </main>
 </PageLayout>
-
-<script>
-  function setupTextScramble() {
-    const letters = '01ABCDEF<>/{}_-~#*!&';
-    const target = document.getElementById('hacker-title');
-    if (!target) return;
-
-    let interval: number | null = null;
-    const originalText = target.dataset.value || target.innerText;
-
-    const runScramble = () => {
-      let iteration = 0;
-      if (interval) clearInterval(interval);
-
-      interval = window.setInterval(() => {
-        target.innerText = originalText
-          .split('')
-          .map((char, index) => {
-            if (index < iteration) {
-              return originalText[index];
-            }
-            return letters[Math.floor(Math.random() * letters.length)];
-          })
-          .join('');
-
-        if (iteration >= originalText.length) {
-          if (interval) clearInterval(interval);
-        }
-        iteration += 1 / 3;
-      }, 30);
-    };
-
-    runScramble();
-    target.onmouseenter = runScramble;
+<style>
+  .home-content {
+    max-width: 58rem;
+    margin-inline: auto;
   }
-
-  function setupTypewriter() {
-    const el = document.getElementById('typewriter-text');
-    if (!el) return;
-
-    const phrases = [
-      'Attack - Defense CTF Player',
-      'Intern Mobile Security Engineer',
-      'Reverse Engineering & Pwnable Enthusiast',
-      'Press ` or Ctrl+K for CLI Terminal'
-    ];
-    let phraseIdx = 0;
-    let charIdx = 0;
-    let isDeleting = false;
-
-    function type() {
-      const current = phrases[phraseIdx];
-      if (isDeleting) {
-        el!.textContent = current.substring(0, charIdx - 1);
-        charIdx--;
-      } else {
-        el!.textContent = current.substring(0, charIdx + 1);
-        charIdx++;
-      }
-
-      let speed = isDeleting ? 30 : 60;
-
-      if (!isDeleting && charIdx === current.length) {
-        speed = 2000;
-        isDeleting = true;
-      } else if (isDeleting && charIdx === 0) {
-        isDeleting = false;
-        phraseIdx = (phraseIdx + 1) % phrases.length;
-        speed = 400;
-      }
-
-      setTimeout(type, speed);
+  .home-intro {
+    display: flex;
+    align-items: flex-start;
+    gap: clamp(1rem, 4vw, 2rem);
+    padding-block: 1rem 2.5rem;
+  }
+  .home-avatar {
+    width: 6rem;
+    height: 6rem;
+    object-fit: cover;
+    border: 1px solid hsl(var(--border));
+    border-radius: 1.25rem;
+    flex-shrink: 0;
+  }
+  .intro-eyebrow {
+    font: 0.7rem/1.5 monospace;
+    letter-spacing: 0.08em;
+    color: hsl(var(--primary));
+    margin-bottom: 0.5rem;
+  }
+  h1 {
+    font: 500 clamp(2rem, 5vw, 3rem)/1.15 monospace;
+  }
+  .intro-role {
+    margin-top: 1rem;
+    font-size: clamp(1rem, 2vw, 1.2rem);
+  }
+  .intro-description {
+    max-width: 45ch;
+    margin-top: 0.5rem;
+    color: hsl(var(--muted-foreground));
+    line-height: 1.7;
+  }
+  .intro-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1rem;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.875rem;
+  }
+  .intro-meta a {
+    min-height: 44px;
+  }
+  .intro-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+  }
+  .intro-actions :global(a:first-child) {
+    background: hsl(var(--primary));
+    color: hsl(var(--background));
+    border-color: hsl(var(--primary));
+  }
+  .home-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+  .section-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .section-heading h2 {
+    font-size: 1.25rem;
+    font-weight: 500;
+  }
+  .section-heading a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: 0.875rem;
+    color: hsl(var(--primary));
+  }
+  .post-list {
+    display: grid;
+    gap: 1rem;
+  }
+  .background-cards {
+    display: grid;
+    gap: 1rem;
+  }
+  @media (max-width: 479px) {
+    .home-intro {
+      flex-direction: column;
     }
-
-    type();
+    .home-avatar {
+      width: 4rem;
+      height: 4rem;
+    }
   }
-
-  function initHomeEffects() {
-    setupTextScramble();
-    setupTypewriter();
-  }
-
-  initHomeEffects();
-  document.addEventListener('astro:page-load', initHomeEffects);
-</script>
+</style>

@@ -21,7 +21,7 @@
     "@astrojs/rss": "4.0.18",
     "@astrojs/vercel": "10.0.6",
     "astro": "6.2.1",
-    "astro-pure": "1.4.7",
+    "astro-pure": "file:packages/pure",
     "katex": "^0.16.45",
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",

@@ -1,41 +1,36 @@
 export function getTheme() {
-  return localStorage.getItem('theme')
+  try {
+    return localStorage.getItem('theme')
+  } catch {
+    return 'system'
+  }
 }
-
-export function listenThemeChange(theme?: string) {
-  // If theme is specified, no need to listen window theme change
-  if (theme && theme !== 'system') return
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-    setTheme(e.matches ? 'dark' : 'light')
+let listening = false
+export function listenThemeChange() {
+  if (listening) return
+  listening = true
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if (!getTheme() || getTheme() === 'system') setTheme('system')
   })
 }
-
 export function setTheme(theme?: string, save = false) {
   const themes = ['system', 'dark', 'light']
-  if (theme) {
-    if (!themes.includes(theme)) return
-    if (save) localStorage.setItem('theme', theme)
-  } else {
-    theme = getTheme() ?? undefined
-    if (save) {
-      // Set theme equals undefined, switch cycle in ['system', 'dark', 'light']
-      const currentIndex = themes.indexOf(theme ?? 'system')
-      theme = themes[(currentIndex + 1) % themes.length]
-      localStorage.setItem('theme', theme) // save theme
+  const current = getTheme() || 'system'
+  const next = theme || (save ? themes[(themes.indexOf(current) + 1) % themes.length] : current)
+  if (!themes.includes(next)) return
+  if (save) {
+    try {
+      localStorage.setItem('theme', next)
+    } catch {
+      /* Storage is optional. */
     }
   }
-  let targetTheme = theme
-  if (theme === 'system') {
-    targetTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-    // Listen theme change
-    listenThemeChange(theme)
-  }
-
-  // Set theme
-  document.documentElement.classList.toggle('dark', targetTheme === 'dark')
+  const dark =
+    next === 'dark' ||
+    (next === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+  document.documentElement.classList.toggle('dark', dark)
   document
     .querySelector('meta[name="theme-color"]')
-    ?.setAttribute('content', targetTheme === 'dark' ? '#0B0B10' : '#FCFCFD')
-
-  return theme
+    ?.setAttribute('content', dark ? '#0f0f15' : '#fbfaf8')
+  return next
 }

@@ -1,7 +1,7 @@
 ---
 import { BackToTop } from 'astro-pure/components/pages'
 import type { SiteMeta } from 'astro-pure/types'
-import { Button, Icon } from 'astro-pure/user'
+import { Button } from 'astro-pure/user'
 import { cn } from 'astro-pure/utils'
 import PageLayout from '@/layouts/BaseLayout.astro'
 import { integ } from '@/site-config'
@@ -10,158 +10,111 @@ interface Props {
   meta: SiteMeta
   highlightColor?: string
   back?: string
+  lang?: string
+  searchable?: boolean
 }
-
-const { meta, highlightColor, back = '/', ...props } = Astro.props
+const { meta, highlightColor, back = '/', lang, searchable = false, ...props } = Astro.props
+const hasSidebar = Astro.slots.has('sidebar')
 ---
 
-<PageLayout {meta} {highlightColor} {...props}>
+<PageLayout {meta} {highlightColor} {lang} {...props}>
   <Button title='Back' href={back} variant='back' />
-  <main class='mt-6 items-start gap-x-10 md:flex'>
-    {/* Sidebar */}
-    <aside
-      class='animate top-20 min-w-48 basis-60 overflow-y-scroll max-md:hidden z-[60] fixed md:sticky md:order-2 lg:shrink-0 max-md:border max-md:px-4 max-md:py-3 max-md:bg-muted max-md:rounded-xl'
-      style='height:calc(100vh - 7rem);'
-      id='sidebar'
-    >
-      <slot name='sidebar' />
-    </aside>
-    <div
-      id='sidebar-shade'
-      class='pointer-events-auto fixed top-0 start-0 z-50 h-full w-full'
-      style='display:none;background-color:#00000091'
-    >
-    </div>
-
-    <article class='min-w-0 grow'>
-      {/* Content header */}
-      <div id='content-header' class='animate'>
-        <slot name='header' />
-      </div>
-
-      {/* Content */}
-      <div
-        id='content'
-        class={cn(
-          'max-w-none animate mt-8 md:min-w-[45ch] overflow-x-hidden',
-          integ.typography.class
-        )}
-      >
-        <slot />
-      </div>
+  <main class:list={['reading-layout', { 'has-sidebar': hasSidebar }]}>
+    {
+      hasSidebar && (
+        <details id='sidebar' class='toc-panel' open data-pagefind-ignore>
+          <summary>
+            Contents <span aria-hidden='true'>⌄</span>
+          </summary>
+          <div class='toc-body'>
+            <slot name='sidebar' />
+          </div>
+        </details>
+      )
+    }
+    <article class='reading-surface' data-pagefind-body={searchable || undefined}>
+      <div id='content-header'><slot name='header' /></div>
+      <div id='content' class={cn('min-w-0 max-w-none mt-8', integ.typography.class)}><slot /></div>
+      <div class='article-bottom' data-pagefind-ignore><slot name='bottom' /></div>
     </article>
   </main>
-
-  <div class='bottom mt-6 items-start gap-x-10 md:flex'>
-    {/* Bottom */}
-    <div class='flex-1 text-muted-foreground md:min-w-[50ch]'>
-      <slot name='bottom' />
-    </div>
-    <div class='min-w-48 basis-60'>
-      <slot name='bottom-sidebar' />
-    </div>
-  </div>
-
-  <BackToTop header='content-header' content='content'>
-    <button
-      slot='other-icons'
-      aria-label='Toggle sidebar'
-      class='size-10 flex items-center justify-center rounded-full border-2 border-transparent bg-muted text-muted-foreground duration-300 hover:border-border/75 md:hidden sm:size-12'
-      id='sidebar-btn'
-    >
-      <Icon name='list' />
-    </button>
-  </BackToTop>
+  <div data-pagefind-ignore><slot name='bottom-sidebar' /></div>
+  <BackToTop header='content-header' content='content' />
 </PageLayout>
-
 <script>
-  // Toggle sidebar visibility on button click
-  const sidebarButton = document.getElementById('sidebar-btn')
-  const sidebar = document.getElementById('sidebar')
-  const sidebarShade = document.getElementById('sidebar-shade') as HTMLElement
-
-  sidebarShade?.addEventListener('click', closeSidebar)
-  sidebar?.addEventListener('toc:navigate', closeSidebar)
-
-  function closeSidebar() {
-    sidebar?.classList.remove('show')
-    if (sidebarShade) sidebarShade.style.display = 'none'
-  }
-
-  function toggleSidebar() {
-    if (sidebar && sidebar.classList.contains('show')) {
-      closeSidebar()
-    } else if (sidebar) {
-      sidebar.classList.add('show')
-      sidebarShade.style.display = 'block'
+  const sidebar = document.querySelector<HTMLDetailsElement>('#sidebar')
+  if (sidebar instanceof HTMLDetailsElement) {
+    const wide = window.matchMedia('(min-width: 1024px)')
+    const sync = () => {
+      sidebar.open = wide.matches
     }
+    sync()
+    wide.addEventListener('change', sync)
+    sidebar.addEventListener('toc:navigate', () => {
+      if (!wide.matches) sidebar.open = false
+    })
   }
-
-  sidebarButton?.addEventListener('click', () => {
-    toggleSidebar()
-  })
 </script>
 <style>
-  @media (min-width: 769px) {
-    #sidebar-shade {
-      display: none !important;
-    }
+  .reading-layout {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+    align-items: start;
   }
-  @media (max-width: 769px) {
-    #sidebar {
-      position: fixed !important;
-      z-index: 60 !important;
-      pointer-events: auto;
-    }
-
-    #sidebar-shade {
-      z-index: 50 !important;
-      pointer-events: auto;
-    }
-
-    aside.show {
-      display: block !important;
-      opacity: 1;
-    }
-
-    @keyframes fade-in-side {
-      0% {
-        transform: translateX(50%);
-        opacity: 0;
-      }
-      100% {
-        transform: translateX(0);
-        opacity: 1;
-      }
-    }
-    @keyframes fade-in {
-      0% {
-        opacity: 0;
-      }
-      100% {
-        opacity: 1;
-      }
-    }
-    aside {
-      animation: 300ms fade-in-side !important;
-      animation-fill-mode: forwards;
-      right: 0;
-      top: 0 !important;
-      height: 100vh !important;
-      min-width: 40vw !important;
-      max-width: 75vw !important;
-      border-top-right-radius: 0 !important;
-      border-bottom-right-radius: 0 !important;
-      padding-top: 1.5rem !important;
-      padding-bottom: 1.5rem !important;
-    }
-    #sidebar-shade {
-      animation: 300ms fade-in;
-    }
+  .reading-surface {
+    min-width: 0;
+    padding: clamp(1rem, 3vw, 2rem);
+    border: 1px solid hsl(var(--border));
+    border-radius: 1rem;
+    background: hsl(var(--card));
   }
-  @media (max-width: 640px) {
-    aside {
-      min-width: 55vw !important;
+  .article-bottom {
+    margin-top: 2rem;
+  }
+  .toc-panel {
+    min-width: 0;
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    background: hsl(var(--card));
+  }
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 48px;
+    padding: 0.75rem 1rem;
+    list-style: none;
+    font-weight: 500;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  .toc-body {
+    padding: 1rem;
+    max-height: 60dvh;
+    overflow-y: auto;
+  }
+  @media (min-width: 1024px) {
+    .has-sidebar {
+      grid-template-columns: minmax(0, 1fr) 14rem;
+      gap: 2rem;
+    }
+    .has-sidebar .reading-surface {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .toc-panel {
+      grid-column: 2;
+      grid-row: 1;
+      position: sticky;
+      top: 6rem;
+    }
+    .toc-body {
+      max-height: calc(100dvh - 8rem);
+    }
+    summary {
+      display: none;
     }
   }
 </style>

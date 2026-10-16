@@ -5,9 +5,11 @@ import type { CollectionEntry } from 'astro:content'
 // Plugin styles
 import 'katex/dist/katex.min.css'
 
+import config from 'virtual:config'
+
 import { MediumZoom } from 'astro-pure/advanced'
 import { ArticleBottom, Hero, TOC } from 'astro-pure/components/pages'
-import config from 'virtual:config'
+import { getContentLanguage } from 'astro-pure/utils'
 import PageLayout from '@/layouts/ContentLayout.astro'
 
 interface Props {
@@ -24,14 +26,7 @@ const {
   remarkPluginFrontmatter
 } = Astro.props
 
-const {
-  description,
-  heroImage,
-  publishDate,
-  title,
-  updatedDate,
-  draft: isDraft
-} = data
+const { description, heroImage, publishDate, title, updatedDate } = data
 
 const socialImage = heroImage
   ? typeof heroImage.src === 'string'
@@ -46,6 +41,8 @@ const primaryColor = data.heroImage?.color ?? 'hsl(var(--primary) / var(--un-tex
   meta={{ articleDate, description, ogImage: socialImage, title }}
   highlightColor={primaryColor}
   back='/blog'
+  lang={getContentLanguage(data.language)}
+  searchable
 >
   {!!headings.length && <TOC {headings} slot='sidebar' />}
 
@@ -55,10 +52,14 @@ const primaryColor = data.heroImage?.color ?? 'hsl(var(--primary) / var(--un-tex
 
   <Fragment slot='bottom'>
     {/* Khung Donate QR cá nhân */}
-    <div class='mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-xl border border-border bg-muted/30 p-4'>
+    <div
+      class='mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-xl border border-border bg-muted/30 p-4'
+    >
       <div class='text-center sm:text-left'>
         <p class='font-medium text-foreground'>Buy me a coffee ☕</p>
-        <p class='text-sm text-muted-foreground'>If u found this useful and would like to support my work, please consider donating here!</p>
+        <p class='text-sm text-muted-foreground'>
+          If u found this useful and would like to support my work, please consider donating here!
+        </p>
       </div>
       <img
         src='/images/donate-qr.png'

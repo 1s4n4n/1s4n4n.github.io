@@ -15,3 +15,4 @@ export { getTheme, listenThemeChange, setTheme } from './theme'
 
 // Toast
 export { showToast } from './toast'
+export { getTagSlug, getTagUrl, getContentLanguage } from './content'
