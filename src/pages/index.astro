@@ -7,12 +7,14 @@ import { Button, Card, Icon, Label } from 'astro-pure/user'
 import PageLayout from '@/layouts/BaseLayout.astro'
 import Section from '@/components/home/Section.astro'
 import SkillLayout from '@/components/home/SkillLayout.astro'
+import stillAvatar from '@/assets/avatar-still.webp'
 import config from '@/site-config'
 
 const posts = sortMDByDate(await getBlogCollection()).slice(0, 4)
-const images = import.meta.glob<{ default: ImageMetadata }>(
-  '/src/assets/*.{jpeg,jpg,png,gif,avif,webp}'
-)
+const images = import.meta.glob<{ default: ImageMetadata }>([
+  '/src/assets/*.{jpeg,jpg,png,gif,avif,webp}',
+  '!/src/assets/avatar-still.webp'
+])
 const avatar = images[config.logo.src]
 if (!avatar) throw new Error(`Avatar not found: ${config.logo.src}`)
 ---
@@ -20,14 +22,17 @@ if (!avatar) throw new Error(`Avatar not found: ${config.logo.src}`)
 <PageLayout meta={{ title: 'Home' }}>
   <main class='home-content'>
     <section class='home-intro' id='content-header' aria-labelledby='home-title'>
-      <Image
-        src={avatar()}
-        alt={config.logo.alt || 'Profile'}
-        class='home-avatar'
-        width={192}
-        format='webp'
-        loading='eager'
-      />
+      <picture>
+        <source media='(prefers-reduced-motion: reduce)' srcset={stillAvatar.src} />
+        <Image
+          src={avatar()}
+          alt={config.logo.alt || 'Profile'}
+          class='home-avatar'
+          width={192}
+          format='webp'
+          loading='eager'
+        />
+      </picture>
       <div>
         <p class='intro-eyebrow'>SECURITY · RESEARCH · WRITEUPS</p>
         <h1 id='home-title'>{config.author}</h1>
@@ -105,6 +110,9 @@ if (!avatar) throw new Error(`Avatar not found: ${config.logo.src}`)
     object-fit: cover;
     border: 1px solid hsl(var(--border));
     border-radius: 1.25rem;
+    flex-shrink: 0;
+  }
+  .home-intro > picture {
     flex-shrink: 0;
   }
   .intro-eyebrow {
